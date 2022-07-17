@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">firsTask</string>
+    <string name="app_name">NMedia</string>
+    <string name="name_with_mark">NMedia!</string>
 </resources>
