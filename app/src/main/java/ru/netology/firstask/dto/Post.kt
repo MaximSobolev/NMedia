@@ -1,4 +1,4 @@
-package ru.netology.firstask
+package ru.netology.firstask.dto
 
 data class Post (
     val id : Int,
