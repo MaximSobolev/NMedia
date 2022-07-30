@@ -3,21 +3,21 @@ package ru.netology.firstask.activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import ru.netology.firstask.R
 import ru.netology.firstask.databinding.ActivityMainBinding
+import ru.netology.firstask.recyclerview.PostAdapter
 import ru.netology.firstask.viewmodel.PostViewModel
 
 
 class MainActivity : AppCompatActivity() {
     private var binding : ActivityMainBinding? = null
     private val viewModel: PostViewModel by viewModels()
+    private lateinit var adapter: PostAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         initBinding()
-        subscribe()
-        setupListeners()
+        initAdapter()
+        setupAdapter()
     }
 
     private fun initBinding() {
@@ -25,33 +25,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root)
     }
 
-    private fun subscribe() {
-        viewModel.data.observe(this) { post ->
-            binding?.apply {
-                author.text = post.author
-                published.text = post.published
-                content.text = post.content
-                likeCount.text = viewModel.largeNumberDisplay(post.like)
-                shareCount.text = viewModel.largeNumberDisplay(post.share)
-                viewCount.text = viewModel.largeNumberDisplay(post.view)
-                like.setImageResource(
-                    if (post.likeByMe) ru.netology.firstask.R.drawable.ic_baseline_favorite_24 else
-                        ru.netology.firstask.R.drawable.ic_baseline_favorite_border_24
-                )
-            }
-        }
+    private fun initAdapter() {
+        adapter = PostAdapter(
+            viewModel,
+            { viewModel.likeById(it.id) },
+            { viewModel.shareById(it.id) })
+        binding?.list?.adapter = adapter
     }
 
-    private fun setupListeners() {
-        viewModel.data.observe(this) {
-            binding?.apply {
-                like.setOnClickListener {
-                    viewModel.like()
-                }
-                share.setOnClickListener {
-                    viewModel.share()
-                }
-            }
+    private fun setupAdapter() {
+        viewModel.data.observe(this) { posts ->
+                adapter.submitList(posts)
         }
     }
 }
