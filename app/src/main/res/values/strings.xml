@@ -7,4 +7,10 @@
     <string name="like_count" translatable="false">10</string>
     <string name="share_count" translatable="false">5</string>
     <string name="view_count" translatable="false">5</string>
+    <string name="post_text">Post text</string>
+    <string name="remove">Remove</string>
+    <string name="now">Now</string>
+    <string name="error_empty_text">Content can\'t be empty</string>
+    <string name="edit">Edit</string>
+    <string name="edit_post">Edit post content</string>
 </resources>

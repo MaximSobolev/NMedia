@@ -6,9 +6,10 @@ import ru.netology.firstask.dto.Post
 
 
 class PostReposytoryInMemoryImpl : PostRepository {
+    private val idCreator = HashSet<Long>()
     private var posts = listOf(
         Post(
-            id = 9,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Освоение новой профессии — это не только открывающиеся возможности и " +
                     "перспективы, но и настоящий вызов самому себе. Приходится выходить из " +
@@ -19,14 +20,14 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "23 сентября в 10:12"
         ),
         Post(
-            id = 8,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Делиться впечатлениями о любимых фильмах легко, а что если " +
                     "рассказать так, чтобы все заскучали \uD83D\uDE34\n",
             published = "22 сентября в 10:14"
         ),
         Post(
-            id = 7,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Таймбоксинг — отличный способ навести порядок в своём календаре " +
                     " разобраться с делами, которые долго откладывали на потом. Его " +
@@ -37,7 +38,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "22 сентября в 10:12"
         ),
         Post(
-            id = 6,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "\uD83D\uDE80 24 сентября стартует новый поток бесплатного курса " +
                     "«Диджитал-старт: первый шаг к востребованной профессии» — за две " +
@@ -46,21 +47,21 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "21 сентября в 10:12"
         ),
         Post(
-            id = 5,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Диджитал давно стал частью нашей жизни: мы общаемся в социальных сетях " +
                     "и мессенджерах, заказываем еду, такси и оплачиваем счета через приложения.",
             published = "20 сентября в 10:14"
         ),
         Post(
-            id = 4,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Большая афиша мероприятий осени: конференции, выставки и хакатоны для " +
                     "жителей Москвы, Ульяновска и Новосибирска \uD83D\uDE09",
             published = "19 сентября в 14:12"
         ),
         Post(
-            id = 3,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Языков программирования много, и выбрать какой-то один бывает нелегко. " +
                     "Собрали подборку статей, которая поможет вам начать, если вы остановили " +
@@ -68,7 +69,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "19 сентября в 10:24"
         ),
         Post(
-            id = 2,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватит на всех: на следующей неделе разбираемся с разработкой " +
                     "мобильных приложений, учимся рассказывать истории и составлять PR-стратегию " +
@@ -76,7 +77,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "18 сентября в 10:12"
         ),
         Post(
-            id = 1,
+            id = addId(),
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Привет, это новая Нетология! Когда-то Нетология начиналась с " +
                     "интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, " +
@@ -94,19 +95,45 @@ class PostReposytoryInMemoryImpl : PostRepository {
     override fun getAll(): LiveData<List<Post>> = data
 
     override fun likeById(id : Long) {
-        val newPostsList = posts.map {
+        posts = posts.map {
             if (it.id != id) it else it.copy(likeByMe = !it.likeByMe,
                 like = if (!it.likeByMe) (it.like + 1) else (it.like - 1))
         }
-        posts = newPostsList
         data.value = posts
     }
 
     override fun shareById(id : Long) {
-        val newPostsList = posts.map {
+        posts = posts.map {
             if (it.id != id) it else it.copy (share = it.share + 1)
         }
-        posts = newPostsList
         data.value = posts
+    }
+
+    override fun removeById(id: Long) {
+        posts = posts.filter { it.id != id }
+        data.value = posts
+    }
+
+    override fun save(post: Post) {
+        posts = if (post.id == 0L) {
+            listOf(
+                post.copy(
+                    id = addId(),
+                    author = "Нетология. Университет интернет-профессий будущего",
+                    published = "Now"
+                )
+            ) + posts
+        } else {
+            posts.map {
+                if (it.id != post.id) it else it.copy(content = post.content)
+            }
+        }
+        data.value = posts
+    }
+
+    override fun addId() : Long {
+        val newId = (idCreator.size + 1).toLong()
+        idCreator.add(newId)
+        return newId
     }
 }
