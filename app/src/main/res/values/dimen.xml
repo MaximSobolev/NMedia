@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="null_dp">0dp</dimen>
     <dimen name="first_dp">8dp</dimen>
     <dimen name="second_dp">16dp</dimen>
+    <dimen name="third_dp">24dp</dimen>
 </resources>

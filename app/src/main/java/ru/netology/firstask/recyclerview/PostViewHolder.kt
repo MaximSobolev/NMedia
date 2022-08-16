@@ -56,13 +56,10 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            likeCount.text = viewModel.largeNumberDisplay(post.like)
-            shareCount.text = viewModel.largeNumberDisplay(post.share)
+            like.setText(viewModel.largeNumberDisplay(post.like))
+            share.setText(viewModel.largeNumberDisplay(post.share))
             viewCount.text = viewModel.largeNumberDisplay(post.view)
-            like.setImageResource(
-                if (post.likeByMe) R.drawable.ic_baseline_favorite_24 else
-                    R.drawable.ic_baseline_favorite_border_24
-            )
+            like.isChecked = post.likeByMe
             itemPost = post
         }
     }
