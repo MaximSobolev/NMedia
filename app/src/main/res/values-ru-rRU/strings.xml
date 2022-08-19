@@ -11,4 +11,9 @@
     <string name="error_empty_text">Строка не должна быть пустой</string>
     <string name="edit">Редактировать</string>
     <string name="edit_post">Редактирование содержимого поста</string>
+    <string name="add_post">Создать Пост</string>
+    <string name="edit_post_image">Изменение</string>
+    <string name="exit">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="share_post">Отправить</string>
 </resources>

@@ -4,4 +4,6 @@
     <dimen name="first_dp">8dp</dimen>
     <dimen name="second_dp">16dp</dimen>
     <dimen name="third_dp">24dp</dimen>
+    <dimen name="fourth_dp">32dp</dimen>
+    <dimen name="fifth_dp">40dp</dimen>
 </resources>

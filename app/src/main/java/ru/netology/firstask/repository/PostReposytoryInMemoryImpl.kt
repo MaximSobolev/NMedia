@@ -17,7 +17,10 @@ class PostReposytoryInMemoryImpl : PostRepository {
                     "искать время для занятий, быть готовым к возможным неудачам в начале пути. " +
                     "В блоге рассказали, как избежать стресса на курсах профпереподготовки → " +
                     "http://netolo.gy/fPD",
-            published = "23 сентября в 10:12"
+            published = "23 сентября в 10:12",
+            videoUrl = "https://www.youtube.com/watch?v=WhWc3b3KhnY",
+            videoName = "Весна – открытый фильм Blender",
+            videoViewCount = 8291167
         ),
         Post(
             id = addId(),
@@ -58,7 +61,10 @@ class PostReposytoryInMemoryImpl : PostRepository {
             author = "Нетология. Университет интернет-профессий будущего",
             content = "Большая афиша мероприятий осени: конференции, выставки и хакатоны для " +
                     "жителей Москвы, Ульяновска и Новосибирска \uD83D\uDE09",
-            published = "19 сентября в 14:12"
+            published = "19 сентября в 14:12",
+            videoUrl = "https://www.youtube.com/watch?v=WhWc3b3KhnY",
+            videoName = "Весна – открытый фильм Blender",
+            videoViewCount = 8291167
         ),
         Post(
             id = addId(),
@@ -74,7 +80,10 @@ class PostReposytoryInMemoryImpl : PostRepository {
             content = "Знаний хватит на всех: на следующей неделе разбираемся с разработкой " +
                     "мобильных приложений, учимся рассказывать истории и составлять PR-стратегию " +
                     "прямо на бесплатных занятиях \uD83D\uDC47",
-            published = "18 сентября в 10:12"
+            published = "18 сентября в 10:12",
+            videoUrl = "https://www.youtube.com/watch?v=WhWc3b3KhnY",
+            videoName = "Весна – открытый фильм Blender",
+            videoViewCount = 8291167
         ),
         Post(
             id = addId(),

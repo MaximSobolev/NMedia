@@ -62,4 +62,9 @@ class PostViewModel : ViewModel() {
         }
         return output
     }
+
+    fun showPreviewVideo (post : Post) : Boolean {
+        if (post.videoUrl.isNullOrBlank()) return false
+        return true
+    }
 }

@@ -44,11 +44,17 @@ class PostViewHolder(
                 }.show()
             }
         }
+    private val watchVideoOnClickListener: View.OnClickListener =
+        View.OnClickListener {
+            itemPost?.let { onInteractionListener.showVideo(it) }
+        }
 
     init {
         binding.like.setOnClickListener(likeOnClickListener)
         binding.share.setOnClickListener(shareOnClickListener)
         binding.moreButton.setOnClickListener(menuOnClickListener)
+        binding.watchVideo.setOnClickListener(watchVideoOnClickListener)
+        binding.videoPreview.setOnClickListener(watchVideoOnClickListener)
     }
 
     fun bind(post: Post) {
@@ -56,10 +62,15 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            like.setText(viewModel.largeNumberDisplay(post.like))
-            share.setText(viewModel.largeNumberDisplay(post.share))
+            like.text = viewModel.largeNumberDisplay(post.like)
+            share.text = viewModel.largeNumberDisplay(post.share)
             viewCount.text = viewModel.largeNumberDisplay(post.view)
             like.isChecked = post.likeByMe
+            if (viewModel.showPreviewVideo(post)) {
+                videoName.text = post.videoName
+                videoViewCount.text = "${viewModel.largeNumberDisplay(post.videoViewCount ?: 0)} views"
+                videoGroup.visibility = View.VISIBLE
+            }
             itemPost = post
         }
     }

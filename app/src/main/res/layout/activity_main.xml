@@ -1,124 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     tools:context=".activity.MainActivity">
+
     <ScrollView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/secondBarrier">
+        tools:ignore="ScrollViewCount">
+
         <androidx.recyclerview.widget.RecyclerView
-             android:id="@+id/list"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-             tools:listitem="@layout/card_post"
-             tools:itemCount="10"/>
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="10"
+            tools:listitem="@layout/card_post" />
+
     </ScrollView>
-    <ImageView
-        android:id="@+id/editImage"
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addPost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_edit_24"
-        android:layout_marginStart="@dimen/first_dp"
-        app:layout_constraintTop_toTopOf="@id/editPost"
-        app:layout_constraintBottom_toBottomOf="@id/editContent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
-    <TextView
-        android:id="@+id/editPost"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/edit_post"
-        android:layout_marginStart="@dimen/first_dp"
-        android:paddingTop="@dimen/first_dp"
-        app:layout_constraintStart_toEndOf="@+id/editImage"
-        app:layout_constraintEnd_toStartOf="@id/editOut"
-        app:layout_constraintBottom_toTopOf="@+id/editContent"
-        />
-    <TextView
-        android:id="@+id/editContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        tools:text="@string/content"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:layout_marginStart="@dimen/first_dp"
-        android:layout_marginBottom="@dimen/first_dp"
-        app:layout_constraintStart_toEndOf="@id/editImage"
-        app:layout_constraintEnd_toStartOf="@id/editOut"
-        app:layout_constraintBottom_toBottomOf="@id/firstBarrier"
-        />
-    <ImageButton
-        android:id="@+id/editOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_baseline_close_24"
-        android:background="@android:color/transparent"
-        android:padding="@dimen/first_dp"
+        app:srcCompat="@drawable/ic_baseline_add_24"
+        android:contentDescription="@string/add_post"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/editContent"
-        app:layout_constraintTop_toTopOf="@id/editPost"
-        />
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/editGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:visibility="gone"
-        app:constraint_referenced_ids="editImage, editPost, editContent,
-        editOut, secondHorizontalLine"
-        />
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/secondBarrier"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="editImage,editPost,editOut" />
-    <View
-        android:id="@+id/secondHorizontalLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/vk_grey"
-        app:layout_constraintTop_toTopOf="@id/secondBarrier"/>
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/firstBarrier"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:barrierDirection="top"
-        app:constraint_referenced_ids="addContent,save" />
-    <EditText
-        android:id="@+id/addContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/post_text"
-        android:inputType="textMultiLine"
-        android:importantForAutofill="no"
-        android:layout_marginStart="@dimen/second_dp"
-        android:layout_marginBottom="@dimen/first_dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/save"
-        />
-    <ImageButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:src="@drawable/rotate_up"
-        android:padding="@dimen/first_dp"
-        app:layout_constraintBottom_toBottomOf="@id/addContent"
-        app:layout_constraintTop_toTopOf="@+id/addContent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-    <View
-        android:id="@+id/firstHorizontalLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/vk_grey"
-        app:layout_constraintTop_toTopOf="@id/firstBarrier"/>
+        android:layout_margin="@dimen/second_dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
