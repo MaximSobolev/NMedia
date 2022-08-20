@@ -37,6 +37,7 @@ dependencies {
     def lifecycle_version = "2.5.1"
     def arch_version = "2.1.0"
     def fragment_version = "1.5.2"
+    def gson_version = "2.9.1"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -50,6 +51,8 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     // Fragment
     implementation "androidx.fragment:fragment-ktx:$fragment_version"
+    // Gson
+    implementation "com.google.code.gson:gson:$gson_version"
 
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'

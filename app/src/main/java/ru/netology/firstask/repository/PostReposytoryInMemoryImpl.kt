@@ -1,12 +1,20 @@
 package ru.netology.firstask.repository
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import ru.netology.firstask.dto.Post
+import java.io.File
+import java.lang.RuntimeException
 
 
-class PostReposytoryInMemoryImpl : PostRepository {
+class PostReposytoryInMemoryImpl(private val context: Context) : PostRepository {
     private val idCreator = HashSet<Long>()
+    private val gson = Gson()
+    private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
+    private val filename = "posts.json"
     private var posts = listOf(
         Post(
             id = addId(),
@@ -18,7 +26,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
                     "В блоге рассказали, как избежать стресса на курсах профпереподготовки → " +
                     "http://netolo.gy/fPD",
             published = "23 сентября в 10:12",
-            videoUrl = "https://www.youtube.com/watch?v=WhWc3b3KhnY",
+            videoUrl = "https://www.youtub[e.com/watch?v=WhWc3b3KhnY",
             videoName = "Весна – открытый фильм Blender",
             videoViewCount = 8291167
         ),
@@ -98,8 +106,32 @@ class PostReposytoryInMemoryImpl : PostRepository {
             published = "21 мая в 18:36"
         )
     )
-
     private val data = MutableLiveData(posts)
+
+
+    init {
+        val file = context.filesDir.resolve(filename)
+        if (file.exists()) tryOpenJson(file) else sync()
+    }
+
+    private fun tryOpenJson(file : File) {
+        context.openFileInput(filename).bufferedReader().use {
+            try {
+                posts = gson.fromJson(it, type)
+                data.value = posts
+            } catch (e : RuntimeException) {
+                file.delete()
+                sync()
+            }
+        }
+    }
+
+    private fun sync() {
+        context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
+            it.write(gson.toJson(posts))
+        }
+    }
+
 
     override fun getAll(): LiveData<List<Post>> = data
 
@@ -109,6 +141,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
                 like = if (!it.likeByMe) (it.like + 1) else (it.like - 1))
         }
         data.value = posts
+        sync()
     }
 
     override fun shareById(id : Long) {
@@ -116,11 +149,13 @@ class PostReposytoryInMemoryImpl : PostRepository {
             if (it.id != id) it else it.copy (share = it.share + 1)
         }
         data.value = posts
+        sync()
     }
 
     override fun removeById(id: Long) {
         posts = posts.filter { it.id != id }
         data.value = posts
+        sync()
     }
 
     override fun save(post: Post) {
@@ -138,6 +173,7 @@ class PostReposytoryInMemoryImpl : PostRepository {
             }
         }
         data.value = posts
+        sync()
     }
 
     override fun addId() : Long {

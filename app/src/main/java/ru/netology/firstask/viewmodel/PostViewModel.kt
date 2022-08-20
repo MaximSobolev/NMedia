@@ -1,5 +1,7 @@
 package ru.netology.firstask.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.netology.firstask.dto.Post
@@ -14,8 +16,8 @@ private val empty = Post (
     published = ""
         )
 
-class PostViewModel : ViewModel() {
-    private val repository : PostRepository = PostReposytoryInMemoryImpl()
+class PostViewModel(application : Application) : AndroidViewModel(application) {
+    private val repository : PostRepository = PostReposytoryInMemoryImpl(application)
     val data = repository.getAll()
     val edited = MutableLiveData (empty)
     fun likeById(id : Long) = repository.likeById(id)
