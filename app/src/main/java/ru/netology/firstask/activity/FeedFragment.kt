@@ -2,50 +2,47 @@ package ru.netology.firstask.activity
 
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.viewModels
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import ru.netology.firstask.R
-import ru.netology.firstask.contract.NewPostIntentContract
-import ru.netology.firstask.databinding.ActivityMainBinding
+import ru.netology.firstask.databinding.FragmentFeedBinding
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.recyclerview.OnInteractionListener
 import ru.netology.firstask.recyclerview.PostAdapter
+import ru.netology.firstask.util.PostArg
+import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.PostViewModel
 
 
-class MainActivity : AppCompatActivity() {
-    private var binding : ActivityMainBinding? = null
-    private val viewModel: PostViewModel by viewModels()
+class FeedFragment : Fragment() {
+    private var binding : FragmentFeedBinding? = null
+    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private lateinit var adapter: PostAdapter
     private var newPost = false
 
-    private val newPostLauncher = registerForActivityResult(NewPostIntentContract()) { text ->
-        if (text.isNullOrBlank()) {
-                Toast.makeText(
-                    this@MainActivity,
-                    R.string.error_empty_text,
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@registerForActivityResult
-        } else {
-            viewModel.changeContent(text)
-            viewModel.save()
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initBinding()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        initBinding(inflater, container)
         initAdapter()
         setupObserve()
         setupListeners()
+        return binding?.root
     }
 
-    private fun initBinding() {
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding?.root)
+    private fun initBinding(inflater: LayoutInflater, container: ViewGroup?) {
+        binding = FragmentFeedBinding.inflate(
+            inflater,
+            container,
+            false
+        )
     }
 
     private fun initAdapter() {
@@ -68,7 +65,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onEdit(post: Post) {
-                    newPostLauncher.launch(post.content)
+                    findNavController().navigate(R.id.feedFragmentToNewPostFragment,
+                    Bundle().apply {
+                        textArg = post.content
+                    })
                     viewModel.edit(post)
                 }
 
@@ -78,8 +78,15 @@ class MainActivity : AppCompatActivity() {
 
                 override fun showVideo(post: Post) {
                     val url = post.videoUrl
+                    if (url == null) return
                     val videoIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     startActivity(videoIntent)
+                }
+
+                override fun openPost(post: Post) {
+                    findNavController().navigate(R.id.feedFragmentToShowPostFragment,
+                    Bundle().apply
+                     { postArg = post })
                 }
 
             })
@@ -87,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObserve() {
-        viewModel.data.observe(this) { posts ->
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
             newPost = posts.size > adapter.itemCount
             adapter.submitList(posts) {
                 if (newPost) {
@@ -100,8 +107,12 @@ class MainActivity : AppCompatActivity() {
     private fun setupListeners() {
         binding?.apply {
             addPost.setOnClickListener{
-                newPostLauncher.launch(null)
+                findNavController().navigate(R.id.feedFragmentToNewPostFragment)
             }
         }
+    }
+    companion object {
+        var Bundle.textArg: String? by StringArg
+        var Bundle.postArg : Post? by PostArg
     }
 }

@@ -6,15 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.netology.firstask.dto.Post
-import java.io.File
 import java.lang.RuntimeException
 
 
 class PostReposytoryInMemoryImpl(private val context: Context) : PostRepository {
-    private val idCreator = HashSet<Long>()
+    private var idCreator = HashSet<Long>()
     private val gson = Gson()
-    private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
-    private val filename = "posts.json"
+    private val postsType = TypeToken.getParameterized(List::class.java, Post::class.java).type
+    private val idCreatorType = object : TypeToken<HashSet<Long>>(){}.type
+    private val postsFilename = "posts.json"
+    private val idCreatorFilename = "idCreator.json"
     private var posts = listOf(
         Post(
             id = addId(),
@@ -26,7 +27,7 @@ class PostReposytoryInMemoryImpl(private val context: Context) : PostRepository 
                     "В блоге рассказали, как избежать стресса на курсах профпереподготовки → " +
                     "http://netolo.gy/fPD",
             published = "23 сентября в 10:12",
-            videoUrl = "https://www.youtub[e.com/watch?v=WhWc3b3KhnY",
+            videoUrl = "https://www.youtube.com/watch?v=WhWc3b3KhnY",
             videoName = "Весна – открытый фильм Blender",
             videoViewCount = 8291167
         ),
@@ -110,25 +111,42 @@ class PostReposytoryInMemoryImpl(private val context: Context) : PostRepository 
 
 
     init {
-        val file = context.filesDir.resolve(filename)
-        if (file.exists()) tryOpenJson(file) else sync()
+        val filePosts = context.filesDir.resolve(postsFilename)
+        val fileIdCreator = context.filesDir.resolve(idCreatorFilename)
+        if (filePosts.exists()) tryOpenJsonPosts() else {
+            sync()
+        }
+        if (fileIdCreator.exists()) tryOpenJsonIdCreator() else {
+            sync()
+        }
     }
 
-    private fun tryOpenJson(file : File) {
-        context.openFileInput(filename).bufferedReader().use {
+    private fun tryOpenJsonPosts() {
+        context.openFileInput(postsFilename).bufferedReader().use {
             try {
-                posts = gson.fromJson(it, type)
+                posts = gson.fromJson(it, postsType)
                 data.value = posts
             } catch (e : RuntimeException) {
-                file.delete()
+                sync()
+            }
+        }
+    }
+    private fun tryOpenJsonIdCreator() {
+        context.openFileInput(idCreatorFilename).bufferedReader().use {
+            try {
+                idCreator = gson.fromJson(it, idCreatorType)
+            } catch (e : RuntimeException) {
                 sync()
             }
         }
     }
 
     private fun sync() {
-        context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
+        context.openFileOutput(postsFilename, Context.MODE_PRIVATE).bufferedWriter().use {
             it.write(gson.toJson(posts))
+        }
+        context.openFileOutput(idCreatorFilename, Context.MODE_PRIVATE).bufferedWriter().use {
+            it.write(gson.toJson(idCreator))
         }
     }
 

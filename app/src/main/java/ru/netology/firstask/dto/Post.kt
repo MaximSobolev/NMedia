@@ -1,5 +1,7 @@
 package ru.netology.firstask.dto
 
+import java.io.Serializable
+
 data class Post (
     val id : Long,
     val author : String,
@@ -12,4 +14,4 @@ data class Post (
     val share : Int = 9599,
     val view : Int = 10500,
     val likeByMe : Boolean = false
-)
+) : Serializable

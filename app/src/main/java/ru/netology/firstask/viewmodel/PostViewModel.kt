@@ -3,7 +3,6 @@ package ru.netology.firstask.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.repository.PostReposytoryInMemoryImpl
@@ -66,7 +65,7 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     }
 
     fun showPreviewVideo (post : Post) : Boolean {
-        if (post.videoUrl.isNullOrBlank()) return false
+        if (post.videoUrl == null) return false
         return true
     }
 }

@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".activity.MainActivity">
+    tools:ignore="ScrollViewCount">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".activity.FeedFragment"
+    android:id="@+id/cardPostContainer">
 
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/second_dp"
-        android:paddingVertical="@dimen/second_dp"
+        android:paddingTop="@dimen/second_dp"
         android:src="@drawable/ic_netelogy"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -64,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/content"
-        android:layout_marginTop="@dimen/first_dp"
+        android:layout_marginTop="@dimen/second_dp"
         android:layout_marginHorizontal="@dimen/second_dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
@@ -174,3 +180,4 @@
         android:gravity="center"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/feedFragment">
+    <fragment
+        android:id="@+id/feedFragment"
+        android:name="ru.netology.firstask.activity.FeedFragment"
+        android:label="fragment_feed"
+        tools:layout="@layout/fragment_feed">
+            <action
+                android:id="@+id/feedFragmentToNewPostFragment"
+                app:destination="@+id/newPostFragment"
+                app:enterAnim="@android:anim/fade_in"
+                app:exitAnim="@android:anim/fade_out" />
+            <action
+                android:id="@+id/feedFragmentToShowPostFragment"
+                app:destination="@id/showPostFragment"
+                app:enterAnim="@android:anim/fade_in"
+                app:exitAnim="@android:anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/newPostFragment"
+        android:name="ru.netology.firstask.activity.NewPostFragment"
+        android:label="new_post_fragment"
+        tools:layout="@layout/fragment_new_post">
+    </fragment>
+    <fragment
+        android:id="@+id/showPostFragment"
+        android:name="ru.netology.firstask.activity.ShowPostFragment"
+        android:label="show_post"
+        tools:layout="@layout/card_post">
+        <action
+            android:id="@+id/showPostFragmentToNewPostFragment"
+            app:destination="@id/newPostFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"/>
+        <action
+            android:id="@+id/showPostFragmentToFeedFragment"
+            app:destination="@+id/feedFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"/>
+
+    </fragment>
+
+
+</navigation>

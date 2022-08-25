@@ -48,6 +48,10 @@ class PostViewHolder(
         View.OnClickListener {
             itemPost?.let { onInteractionListener.showVideo(it) }
         }
+    private val openPostFragmentOnClickListener: View.OnClickListener =
+        View.OnClickListener {
+            itemPost?.let { onInteractionListener.openPost(it)}
+        }
 
     init {
         binding.like.setOnClickListener(likeOnClickListener)
@@ -55,6 +59,7 @@ class PostViewHolder(
         binding.moreButton.setOnClickListener(menuOnClickListener)
         binding.watchVideo.setOnClickListener(watchVideoOnClickListener)
         binding.videoPreview.setOnClickListener(watchVideoOnClickListener)
+        binding.cardPostContainer.setOnClickListener(openPostFragmentOnClickListener)
     }
 
     fun bind(post: Post) {
@@ -70,6 +75,8 @@ class PostViewHolder(
                 videoName.text = post.videoName
                 videoViewCount.text = "${viewModel.largeNumberDisplay(post.videoViewCount ?: 0)} views"
                 videoGroup.visibility = View.VISIBLE
+            } else {
+                videoGroup.visibility = View.GONE
             }
             itemPost = post
         }
