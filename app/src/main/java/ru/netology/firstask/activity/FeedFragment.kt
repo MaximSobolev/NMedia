@@ -107,7 +107,15 @@ class FeedFragment : Fragment() {
     private fun setupListeners() {
         binding?.apply {
             addPost.setOnClickListener{
-                findNavController().navigate(R.id.feedFragmentToNewPostFragment)
+                val draft = viewModel.getDraft()
+                if (draft.isBlank()) {
+                    findNavController().navigate(R.id.feedFragmentToNewPostFragment)
+                } else {
+                    findNavController().navigate(R.id.feedFragmentToNewPostFragment,
+                    Bundle().apply{
+                        textArg = draft
+                    })
+                }
             }
         }
     }

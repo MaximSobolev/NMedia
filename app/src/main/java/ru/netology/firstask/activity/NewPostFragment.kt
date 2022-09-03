@@ -12,6 +12,7 @@ import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentNewPostBinding
 import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.PostViewModel
+import androidx.activity.OnBackPressedCallback
 
 
 class NewPostFragment : Fragment() {
@@ -26,6 +27,17 @@ class NewPostFragment : Fragment() {
         initBinding(inflater, container)
         setupArguments()
         setupListeners()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true){
+                override fun handleOnBackPressed() {
+                    binding?.apply {
+                        if (addContent.text.isNotBlank())
+                        viewModel.setDraft(addContent.text.toString())
+                    }
+                    findNavController().navigate(R.id.newPostFragmentToFeedFragment)
+                }
+            })
         return binding?.root
     }
     private fun setupArguments() {

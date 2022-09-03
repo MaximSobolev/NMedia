@@ -3,9 +3,10 @@ package ru.netology.firstask.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import ru.netology.firstask.db.AppDb
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.repository.PostRepository
-import ru.netology.firstask.repository.PostReposytoryInMemoryImpl
+import ru.netology.firstask.repository.PostRepositorySQLiteImpl
 import kotlin.math.floor
 
 private val empty = Post (
@@ -16,12 +17,17 @@ private val empty = Post (
         )
 
 class PostViewModel(application : Application) : AndroidViewModel(application) {
-    private val repository : PostRepository = PostReposytoryInMemoryImpl(application)
+    private val repository : PostRepository = PostRepositorySQLiteImpl(
+        AppDb.getInstance(application).postDao
+    )
+    private var draft = ""
     val data = repository.getAll()
+
     val edited = MutableLiveData (empty)
     fun likeById(id : Long) = repository.likeById(id)
     fun shareById(id : Long) = repository.shareById(id)
     fun removeById(id : Long) = repository.removeById(id)
+
 
     fun save () {
         edited.value?.let {
@@ -67,5 +73,14 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     fun showPreviewVideo (post : Post) : Boolean {
         if (post.videoUrl == null) return false
         return true
+    }
+
+    fun setDraft (content : String) {
+        draft = content
+    }
+    fun getDraft() : String {
+        val content = draft
+        draft = ""
+        return content
     }
 }

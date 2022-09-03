@@ -25,6 +25,11 @@
         android:name="ru.netology.firstask.activity.NewPostFragment"
         android:label="new_post_fragment"
         tools:layout="@layout/fragment_new_post">
+        <action
+            android:id="@+id/newPostFragmentToFeedFragment"
+            app:destination="@id/feedFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"/>
     </fragment>
     <fragment
         android:id="@+id/showPostFragment"
