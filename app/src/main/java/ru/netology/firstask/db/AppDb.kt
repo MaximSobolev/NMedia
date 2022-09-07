@@ -1,13 +1,15 @@
 package ru.netology.firstask.db
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import ru.netology.firstask.dao.PostDao
-import ru.netology.firstask.dao.PostDaoImpl
+import ru.netology.firstask.entity.PostEntity
 
-class AppDb private constructor(db : SQLiteDatabase){
-    val postDao : PostDao = PostDaoImpl(db)
+@Database(entities = [PostEntity::class], version = 1, exportSchema = false)
+abstract class AppDb : RoomDatabase() {
+    abstract val postDao : PostDao
 
     companion object {
         @Volatile
@@ -15,32 +17,13 @@ class AppDb private constructor(db : SQLiteDatabase){
 
         fun getInstance(context : Context) : AppDb {
             return instance ?: synchronized(this) {
-                instance ?: AppDb(
-                    buildDataBase(context, arrayOf(PostDaoImpl.DDL))
-                ).also { instance = it }
+                instance ?: buildDataBase(context).also { instance = it }
             }
         }
 
-        fun buildDataBase(context : Context, DDLs : Array<String>) = DbHelper(
-            context, 1, "app.db", DDLs
-        ).writableDatabase
-
-    }
-}
-
-class DbHelper(context: Context, dbVersion: Int, dbName: String, private val DDLs: Array<String>) :
-    SQLiteOpenHelper(context, dbName, null, dbVersion) {
-    override fun onCreate(db: SQLiteDatabase) {
-        DDLs.forEach {
-            db.execSQL(it)
-        }
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        TODO("Not implemented")
-    }
-
-    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        TODO("Not implemented")
+        fun buildDataBase(context : Context) =
+            Room.databaseBuilder(context, AppDb::class.java,"app.db")
+                .allowMainThreadQueries()
+                .build()
     }
 }

@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import ru.netology.firstask.db.AppDb
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.repository.PostRepository
-import ru.netology.firstask.repository.PostRepositorySQLiteImpl
+import ru.netology.firstask.repository.PostRepositoryRoomImpl
 import kotlin.math.floor
 
 private val empty = Post (
@@ -17,7 +17,7 @@ private val empty = Post (
         )
 
 class PostViewModel(application : Application) : AndroidViewModel(application) {
-    private val repository : PostRepository = PostRepositorySQLiteImpl(
+    private val repository : PostRepository = PostRepositoryRoomImpl(
         AppDb.getInstance(application).postDao
     )
     private var draft = ""
