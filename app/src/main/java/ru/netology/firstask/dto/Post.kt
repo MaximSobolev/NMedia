@@ -10,8 +10,8 @@ data class Post (
     val videoUrl : String? = null,
     val videoName : String? = null,
     val videoViewCount: Int? = null,
-    val like : Int = 1499999,
+    val likes : Int = 1499999,
     val share : Int = 9599,
     val view : Int = 10500,
-    val likeByMe : Boolean = false
+    val likedByMe : Boolean = false
 ) : Serializable

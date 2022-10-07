@@ -27,6 +27,7 @@ class NewPostFragment : Fragment() {
         initBinding(inflater, container)
         setupArguments()
         setupListeners()
+        setupObservers()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true){
@@ -35,6 +36,7 @@ class NewPostFragment : Fragment() {
                         if (addContent.text.isNotBlank())
                         viewModel.setDraft(addContent.text.toString())
                     }
+
                     findNavController().navigate(R.id.newPostFragmentToFeedFragment)
                 }
             })
@@ -68,8 +70,14 @@ class NewPostFragment : Fragment() {
                     viewModel.changeContent(binding?.addContent?.text.toString())
                     viewModel.save()
                 }
-                findNavController().navigateUp()
             }
+        }
+    }
+
+    private fun setupObservers() {
+        viewModel.postCreated.observe(viewLifecycleOwner) {
+            viewModel.loadPosts()
+            findNavController().navigateUp()
         }
     }
 

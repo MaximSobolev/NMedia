@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import ru.netology.firstask.R
-import ru.netology.firstask.databinding.CardPostBinding
+import ru.netology.firstask.databinding.FragmentShowPostBinding
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.util.PostArg
 import ru.netology.firstask.util.StringArg
@@ -19,8 +21,9 @@ import ru.netology.firstask.viewmodel.PostViewModel
 
 
 class ShowPostFragment : Fragment() {
-    private var binding : CardPostBinding? = null
+    private var binding : FragmentShowPostBinding? = null
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private lateinit var swipeRefreshFragment: SwipeRefreshLayout
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,18 +31,33 @@ class ShowPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ) : View? {
         initBinding(inflater, container)
+        initSwipeRefresh()
         setupArgument()
         setupObserve()
         setupListeners()
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
+            object : OnBackPressedCallback(true){
+                override fun handleOnBackPressed() {
+                    viewModel.loadPosts()
+                    findNavController().navigate(R.id.showPostFragmentToFeedFragment)
+                }
+            })
         return binding?.root
     }
 
     private fun initBinding(inflater: LayoutInflater, container: ViewGroup?) {
-        binding = CardPostBinding.inflate(
+        binding = FragmentShowPostBinding.inflate(
             inflater,
             container,
             false
         )
+    }
+
+    private fun initSwipeRefresh() {
+        binding?.apply {
+            swipeRefreshFragment = swiperefresh
+        }
     }
 
     private fun setupArgument() {
@@ -48,10 +66,10 @@ class ShowPostFragment : Fragment() {
                 author.text = postArg.author
                 published.text = postArg.published
                 content.text = postArg.content
-                like.text = viewModel.largeNumberDisplay(postArg.like)
+                like.text = viewModel.largeNumberDisplay(postArg.likes)
                 share.text = viewModel.largeNumberDisplay(postArg.share)
                 viewCount.text = viewModel.largeNumberDisplay(postArg.view)
-                like.isChecked = postArg.likeByMe
+                like.isChecked = postArg.likedByMe
                 if (viewModel.showPreviewVideo(postArg)) {
                     videoName.text = postArg.videoName
                     videoViewCount.text = "${viewModel.largeNumberDisplay(postArg.videoViewCount ?: 0)} views"
@@ -64,17 +82,15 @@ class ShowPostFragment : Fragment() {
     }
 
     private fun setupObserve() {
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
+        viewModel.data.observe(viewLifecycleOwner) { state ->
             arguments?.postArg?.let { postArg ->
-                binding?.apply {
-                    val post = posts.find { postArg.id == it.id }
-                    post?.let {
-                        content.text = post.content
-                        like.text = viewModel.largeNumberDisplay(post.like)
-                        share.text = viewModel.largeNumberDisplay(post.share)
-                    }
-                }
+                updatePost(state.posts, postArg)
             }
+        }
+        viewModel.postList.observe(viewLifecycleOwner) { posts ->
+                arguments?.postArg?.let { postArg ->
+                   updatePost(posts, postArg)
+                }
         }
     }
 
@@ -117,6 +133,23 @@ class ShowPostFragment : Fragment() {
                         }
                     }.show()
                 }
+            }
+        }
+        swipeRefreshFragment.setOnRefreshListener {
+            viewModel.loadPosts()
+            swipeRefreshFragment.isRefreshing = false
+        }
+    }
+
+    private fun updatePost(posts : List<Post>?, oldPost : Post?) {
+        val post = posts?.find {
+            oldPost?.id == it.id
+        }
+        post?.let {
+            binding?.apply {
+                content.text = post.content
+                like.text = viewModel.largeNumberDisplay(post.likes)
+                share.text = viewModel.largeNumberDisplay(post.share)
             }
         }
     }

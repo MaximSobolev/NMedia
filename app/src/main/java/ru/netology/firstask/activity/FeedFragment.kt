@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentFeedBinding
 import ru.netology.firstask.dto.Post
@@ -24,6 +26,8 @@ class FeedFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private lateinit var adapter: PostAdapter
     private var newPost = false
+    private var postPosition : Int = -10
+    private lateinit var swipeRefreshFragment : SwipeRefreshLayout
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,8 +36,10 @@ class FeedFragment : Fragment() {
     ): View? {
         initBinding(inflater, container)
         initAdapter()
+        initSwipeRefresh()
         setupObserve()
         setupListeners()
+
         return binding?.root
     }
 
@@ -49,7 +55,8 @@ class FeedFragment : Fragment() {
         adapter = PostAdapter(
             viewModel,
             object : OnInteractionListener {
-                override fun onLike(post: Post) {
+                override fun onLike(post: Post, position : Int) {
+                    postPosition = position
                     viewModel.likeById(post.id)
                 }
 
@@ -93,8 +100,27 @@ class FeedFragment : Fragment() {
         binding?.list?.adapter = adapter
     }
 
+    private fun initSwipeRefresh() {
+        binding?.apply {
+            swipeRefreshFragment = swiperefresh
+        }
+    }
+
     private fun setupObserve() {
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            newPost = state.posts.size > adapter.itemCount
+            adapter.submitList(state.posts) {
+                if (newPost) {
+                    binding?.list?.scrollToPosition(0)
+                }
+            }
+            binding?.apply {
+                progressBar.isVisible = state.loading
+                errorGroup.isVisible = state.error
+                emptyText.isVisible = state.empty
+            }
+        }
+        viewModel.postList.observe(viewLifecycleOwner) { posts ->
             newPost = posts.size > adapter.itemCount
             adapter.submitList(posts) {
                 if (newPost) {
@@ -117,8 +143,16 @@ class FeedFragment : Fragment() {
                     })
                 }
             }
+            retryButton.setOnClickListener{
+                viewModel.loadPosts()
+            }
+        }
+        swipeRefreshFragment.setOnRefreshListener {
+            viewModel.loadPosts()
+            swipeRefreshFragment.isRefreshing = false
         }
     }
+
     companion object {
         var Bundle.textArg: String? by StringArg
         var Bundle.postArg : Post? by PostArg
