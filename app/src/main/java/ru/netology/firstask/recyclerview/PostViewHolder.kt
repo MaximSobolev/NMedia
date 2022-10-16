@@ -17,8 +17,7 @@ class PostViewHolder(
     private var itemPost: Post? = null
     private val likeOnClickListener: View.OnClickListener =
         View.OnClickListener {
-            val position = layoutPosition
-            itemPost?.let { onInteractionListener.onLike(it, position) }
+            itemPost?.let { onInteractionListener.onLike(it) }
         }
     private val shareOnClickListener: View.OnClickListener =
         View.OnClickListener {

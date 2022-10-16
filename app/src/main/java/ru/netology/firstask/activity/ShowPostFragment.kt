@@ -98,7 +98,7 @@ class ShowPostFragment : Fragment() {
         arguments?.postArg?.let { postArg ->
             binding?.apply {
                 like.setOnClickListener{
-                    viewModel.likeById(postArg.id)
+                    viewModel.likeById(postArg)
                 }
                 share.setOnClickListener{
                     val intent = Intent().apply {
