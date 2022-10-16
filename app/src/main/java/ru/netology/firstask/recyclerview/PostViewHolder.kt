@@ -17,7 +17,8 @@ class PostViewHolder(
     private var itemPost: Post? = null
     private val likeOnClickListener: View.OnClickListener =
         View.OnClickListener {
-            itemPost?.let { onInteractionListener.onLike(it) }
+            val position = layoutPosition
+            itemPost?.let { onInteractionListener.onLike(it, position) }
         }
     private val shareOnClickListener: View.OnClickListener =
         View.OnClickListener {
@@ -67,10 +68,10 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            like.text = viewModel.largeNumberDisplay(post.like)
+            like.text = viewModel.largeNumberDisplay(post.likes)
             share.text = viewModel.largeNumberDisplay(post.share)
             viewCount.text = viewModel.largeNumberDisplay(post.view)
-            like.isChecked = post.likeByMe
+            like.isChecked = post.likedByMe
             if (viewModel.showPreviewVideo(post)) {
                 videoName.text = post.videoName
                 videoViewCount.text = "${viewModel.largeNumberDisplay(post.videoViewCount ?: 0)} views"

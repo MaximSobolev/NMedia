@@ -16,4 +16,8 @@
     <string name="exit">Отмена</string>
     <string name="save">Сохранить</string>
     <string name="share_post">Отправить</string>
+    <string name="retry">Попробовать снова</string>
+    <string name="retry_text">Произошла ошибка! Попробуйте снова</string>
+    <string name="empty_posts">Постов нет. Если создадите новый пост, то он появится здесь</string>
+    <string name="menu_refresh">Обновить</string>
 </resources>
