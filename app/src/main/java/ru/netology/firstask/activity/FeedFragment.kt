@@ -26,7 +26,6 @@ class FeedFragment : Fragment() {
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private lateinit var adapter: PostAdapter
     private var newPost = false
-    private var postPosition : Int = -10
     private lateinit var swipeRefreshFragment : SwipeRefreshLayout
 
     override fun onCreateView(
@@ -55,9 +54,8 @@ class FeedFragment : Fragment() {
         adapter = PostAdapter(
             viewModel,
             object : OnInteractionListener {
-                override fun onLike(post: Post, position : Int) {
-                    postPosition = position
-                    viewModel.likeById(post.id)
+                override fun onLike(post: Post) {
+                    viewModel.likeById(post)
                 }
 
                 override fun onShare(post: Post) {

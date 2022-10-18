@@ -6,11 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.model.FeedModel
+import ru.netology.firstask.repository.NMediaCallback
 import ru.netology.firstask.repository.PostRepository
-import ru.netology.firstask.repository.PostRepositoryRoomImpl
+import ru.netology.firstask.repository.PostRepositoryImpl
 import ru.netology.firstask.util.SingleLiveEvent
-import java.io.IOException
-import kotlin.concurrent.thread
+import java.lang.Exception
 import kotlin.math.floor
 
 private val empty = Post (
@@ -21,7 +21,7 @@ private val empty = Post (
         )
 
 class PostViewModel(application : Application) : AndroidViewModel(application) {
-    private val repository : PostRepository = PostRepositoryRoomImpl()
+    private val repository : PostRepository = PostRepositoryImpl()
     private val _data = MutableLiveData(FeedModel())
     val data : LiveData<FeedModel>
             get() = _data
@@ -38,57 +38,71 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
         loadPosts()
     }
 
-    fun likeById(id : Long) {
-        thread {
-            val updatedPost = repository.likeById(id)
-            val oldListPosts = _data.value?.posts.orEmpty()
-            val newListPosts = oldListPosts.map { post ->
-                if (updatedPost.id == post.id) {
-                    post.copy(likes = updatedPost.likes, likedByMe = updatedPost.likedByMe)
-                } else post
+    fun likeById(post: Post) {
+        repository.likeByIdAsync(post, object : NMediaCallback<Post>{
+            override fun onSuccess(item: Post) {
+                val oldListPosts = _data.value?.posts.orEmpty()
+                val newListPosts = oldListPosts.map { post ->
+                    if (item.id == post.id) {
+                        post.copy(likes = item.likes, likedByMe = item.likedByMe)
+                    } else post
+                }
+                _postList.postValue(newListPosts)
             }
-            _postList.postValue(newListPosts)
-        }
+
+            override fun onError(e: Exception) {
+            }
+
+        })
     }
     fun shareById(id : Long) {
-        thread {
-            repository.shareById(id)
-        }
+        repository.shareByIdAsync(id, object : NMediaCallback<Post> {
+            override fun onSuccess(item: Post) {
+            }
+
+            override fun onError(e: Exception) {
+            }
+        })
     }
     fun removeById(id : Long) {
-        thread {
-            val old = data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                    .filter { it.id != id }
-                )
+        val old = data.value?.posts.orEmpty()
+        _data.postValue(
+            _data.value?.copy(posts = _data.value?.posts.orEmpty()
+                .filter { it.id != id }
             )
-            try {
-                repository.removeById(id)
-            } catch (e : IOException) {
+        )
+        repository.removeByIdAsync(id, object : NMediaCallback<Unit> {
+            override fun onSuccess(item: Unit) {
+            }
+
+            override fun onError(e: Exception) {
                 _data.postValue(_data.value?.copy(posts = old))
             }
-        }
+
+        })
     }
 
     fun loadPosts() {
-        thread {
             _data.postValue(FeedModel(loading = true))
-            try {
-                val posts = repository.getAll()
-                FeedModel(posts = posts, empty = posts.isEmpty())
-            } catch (e : IOException) {
-                FeedModel(error = true)
-            }.also { _data.postValue(it) }
-        }
+            repository.getAllAsync(object : NMediaCallback<List<Post>> {
+                override fun onSuccess(item: List<Post>) {
+                    _data.postValue(FeedModel(posts = item, empty = item.isEmpty()))
+                }
+                override fun onError(e: Exception) {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
     }
 
     fun save () {
         edited.value?.let {
-            thread {
-                repository.save(it)
-                _postCreated.postValue(Unit)
-            }
+            repository.saveAsync(it, object : NMediaCallback<Unit> {
+                override fun onSuccess(item: Unit) {
+                    _postCreated.postValue(Unit)
+                }
+                override fun onError(e: Exception) {
+                }
+            })
         }
         edited.postValue(empty)
     }
