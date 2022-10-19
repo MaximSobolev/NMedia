@@ -6,4 +6,6 @@
     <dimen name="third_dp">24dp</dimen>
     <dimen name="fourth_dp">32dp</dimen>
     <dimen name="fifth_dp">40dp</dimen>
+    <dimen name="sixth_dp">48dp</dimen>
+    <dimen name="two_hundred_seventy_dp">270dp</dimen>
 </resources>

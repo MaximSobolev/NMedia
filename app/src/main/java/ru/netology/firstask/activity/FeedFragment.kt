@@ -1,7 +1,6 @@
 package ru.netology.firstask.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -79,13 +78,6 @@ class FeedFragment : Fragment() {
 
                 override fun onRemove(post: Post) {
                     viewModel.removeById(post.id)
-                }
-
-                override fun showVideo(post: Post) {
-                    val url = post.videoUrl
-                    if (url == null) return
-                    val videoIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    startActivity(videoIntent)
                 }
 
                 override fun openPost(post: Post) {
