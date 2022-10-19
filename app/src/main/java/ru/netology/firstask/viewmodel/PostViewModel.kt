@@ -16,6 +16,7 @@ import kotlin.math.floor
 private val empty = Post (
     id = 0,
     author = "Me",
+    authorAvatar = "",
     content = "",
     published = ""
         )
@@ -139,11 +140,6 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
             else -> number.toString()
         }
         return output
-    }
-
-    fun showPreviewVideo (post : Post) : Boolean {
-        if (post.videoUrl == null) return false
-        return true
     }
 
     fun setDraft (content : String) {

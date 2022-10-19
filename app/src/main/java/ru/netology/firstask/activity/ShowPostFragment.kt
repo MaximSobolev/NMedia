@@ -11,6 +11,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentShowPostBinding
 import ru.netology.firstask.dto.Post
@@ -18,7 +19,7 @@ import ru.netology.firstask.util.PostArg
 import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.PostViewModel
 
-
+private const val BASE_URL = "http://10.0.2.2:9999"
 
 class ShowPostFragment : Fragment() {
     private var binding : FragmentShowPostBinding? = null
@@ -64,18 +65,28 @@ class ShowPostFragment : Fragment() {
         arguments?.postArg?.let { postArg ->
             binding?.apply {
                 author.text = postArg.author
+                Glide.with(avatar)
+                    .load("${BASE_URL}/avatars/${postArg.authorAvatar}")
+                    .placeholder(R.drawable.ic_baseline_downloading_24)
+                    .error(R.drawable.ic_baseline_error_outline_24)
+                    .timeout(10_000)
+                    .into(avatar)
                 published.text = postArg.published
                 content.text = postArg.content
                 like.text = viewModel.largeNumberDisplay(postArg.likes)
                 share.text = viewModel.largeNumberDisplay(postArg.share)
                 viewCount.text = viewModel.largeNumberDisplay(postArg.view)
                 like.isChecked = postArg.likedByMe
-                if (viewModel.showPreviewVideo(postArg)) {
-                    videoName.text = postArg.videoName
-                    videoViewCount.text = "${viewModel.largeNumberDisplay(postArg.videoViewCount ?: 0)} views"
-                    videoGroup.visibility = View.VISIBLE
+                if (postArg.attachment == null) {
+                    videoPreview.visibility = View.GONE
                 } else {
-                    videoGroup.visibility = View.GONE
+                    Glide.with(videoPreview)
+                        .load("${BASE_URL}/images/${postArg.attachment?.url}")
+                        .placeholder(R.drawable.ic_baseline_downloading_24)
+                        .error(R.drawable.ic_baseline_error_outline_24)
+                        .timeout(10_000)
+                        .into(videoPreview)
+                    videoPreview.visibility = View.VISIBLE
                 }
             }
         }
