@@ -1,6 +1,7 @@
 package ru.netology.firstask.viewmodel
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,7 +23,7 @@ private val empty = Post (
         )
 
 class PostViewModel(application : Application) : AndroidViewModel(application) {
-    private val repository : PostRepository = PostRepositoryImpl()
+    private val repository : PostRepository = PostRepositoryImpl(this)
     private val _data = MutableLiveData(FeedModel())
     val data : LiveData<FeedModel>
             get() = _data
@@ -97,8 +98,8 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
 
     fun save () {
         edited.value?.let {
-            repository.saveAsync(it, object : NMediaCallback<Unit> {
-                override fun onSuccess(item: Unit) {
+            repository.saveAsync(it, object : NMediaCallback<Post> {
+                override fun onSuccess(item: Post) {
                     _postCreated.postValue(Unit)
                 }
                 override fun onError(e: Exception) {
@@ -149,5 +150,21 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
         val content = draft
         draft = ""
         return content
+    }
+
+    fun makeErrorToast (code : Int) {
+        when (code / 100) {
+            4 -> {
+               Toast.makeText(getApplication(),
+               "Код ошибки: $code. Что-то пошло не так, попробуйте снова",
+               Toast.LENGTH_LONG).show()
+
+            }
+            5 -> {
+                Toast.makeText(getApplication(),
+                    "Код ошибки: $code. Упс! Похоже сервер сломался, попробуйте позднее",
+                    Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }
