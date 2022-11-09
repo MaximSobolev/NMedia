@@ -1,20 +1,22 @@
 package ru.netology.firstask.viewmodel
 
 import android.app.Application
-import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
+import kotlinx.coroutines.launch
+import ru.netology.firstask.R
+import ru.netology.firstask.db.AppDb
 import ru.netology.firstask.dto.Post
+import ru.netology.firstask.error.*
 import ru.netology.firstask.model.FeedModel
-import ru.netology.firstask.repository.NMediaCallback
+import ru.netology.firstask.model.FeedModelState
+import ru.netology.firstask.error.OperationType
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.repository.PostRepositoryImpl
-import ru.netology.firstask.util.SingleLiveEvent
 import java.lang.Exception
 import kotlin.math.floor
 
 private val empty = Post (
+    localId = 0,
     id = 0,
     author = "Me",
     authorAvatar = "",
@@ -23,90 +25,91 @@ private val empty = Post (
         )
 
 class PostViewModel(application : Application) : AndroidViewModel(application) {
-    private val repository : PostRepository = PostRepositoryImpl(this)
-    private val _data = MutableLiveData(FeedModel())
-    val data : LiveData<FeedModel>
-            get() = _data
-    val edited = MutableLiveData (empty)
-    private val _postCreated =  SingleLiveEvent<Unit>()
-    val postCreated: LiveData<Unit>
-            get() = _postCreated
-    private val _postList = MutableLiveData<List<Post>>()
-    val postList: LiveData<List<Post>>
-            get() = _postList
+    private val repository : PostRepository = PostRepositoryImpl(
+        AppDb.getInstance(application).postDao
+    )
+    val data : LiveData<FeedModel> = repository.data.map {
+        FeedModel(it, it.isEmpty())
+    }
+    private val _dataState = MutableLiveData<FeedModelState>()
+    val dataState : LiveData<FeedModelState>
+        get() = _dataState
+    private val edited = MutableLiveData (empty)
     private var draft = ""
+    private val _errorMessage = MutableLiveData<Int>()
+    val errorMessage : LiveData<Int>
+            get() = _errorMessage
+    private val error = MutableLiveData<HandlerError>()
+
 
     init {
         loadPosts()
     }
 
     fun likeById(post: Post) {
-        repository.likeByIdAsync(post, object : NMediaCallback<Post>{
-            override fun onSuccess(item: Post) {
-                val oldListPosts = _data.value?.posts.orEmpty()
-                val newListPosts = oldListPosts.map { post ->
-                    if (item.id == post.id) {
-                        post.copy(likes = item.likes, likedByMe = item.likedByMe)
-                    } else post
-                }
-                _postList.postValue(newListPosts)
+        viewModelScope.launch {
+            try {
+                repository.likeByIdAsync(post)
+            } catch (e : AppError) {
+                errorProcessing(HandlerError(OperationType.LIKE, post, e))
             }
-
-            override fun onError(e: Exception) {
-            }
-
-        })
+        }
     }
     fun shareById(id : Long) {
-        repository.shareByIdAsync(id, object : NMediaCallback<Post> {
-            override fun onSuccess(item: Post) {
+        viewModelScope.launch {
+            try {
+                repository.shareByIdAsync(id)
+            } catch (e : AppError) {
+                errorProcessing(HandlerError(OperationType.SHARE, Post(0,id), e))
             }
-
-            override fun onError(e: Exception) {
-            }
-        })
+        }
     }
     fun removeById(id : Long) {
-        val old = data.value?.posts.orEmpty()
-        _data.postValue(
-            _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                .filter { it.id != id }
-            )
-        )
-        repository.removeByIdAsync(id, object : NMediaCallback<Unit> {
-            override fun onSuccess(item: Unit) {
+        viewModelScope.launch {
+            try {
+                repository.removeByIdAsync(id)
+            } catch (e : AppError) {
+                errorProcessing(HandlerError(OperationType.REMOVE, Post(0,id), e))
             }
-
-            override fun onError(e: Exception) {
-                _data.postValue(_data.value?.copy(posts = old))
-            }
-
-        })
+        }
     }
 
     fun loadPosts() {
-            _data.postValue(FeedModel(loading = true))
-            repository.getAllAsync(object : NMediaCallback<List<Post>> {
-                override fun onSuccess(item: List<Post>) {
-                    _data.postValue(FeedModel(posts = item, empty = item.isEmpty()))
-                }
-                override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
-                }
-            })
+        viewModelScope.launch {
+            _dataState.value = FeedModelState(loading = true)
+            try {
+                repository.getAllAsync()
+                _dataState.value = FeedModelState(idle = true)
+            } catch (e : Exception) {
+                _dataState.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun refreshPosts() {
+        viewModelScope.launch {
+            _dataState.value = FeedModelState(refreshing = true)
+            try {
+                repository.getAllAsync()
+                _dataState.value = FeedModelState(idle = true)
+            } catch (e : Exception) {
+                _dataState.value = FeedModelState(error = true)
+            }
+        }
     }
 
     fun save () {
-        edited.value?.let {
-            repository.saveAsync(it, object : NMediaCallback<Post> {
-                override fun onSuccess(item: Post) {
-                    _postCreated.postValue(Unit)
+        viewModelScope.launch {
+            edited.value?.let {
+                try {
+                    repository.saveAsync(it)
+                } catch (e : AppError) {
+                    val post = edited.value ?: return@let
+                    errorProcessing(HandlerError(OperationType.SAVE, post, e))
                 }
-                override fun onError(e: Exception) {
-                }
-            })
+            }
+            edited.postValue(empty)
         }
-        edited.postValue(empty)
     }
 
     fun changeContent (content : String) {
@@ -152,18 +155,39 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
         return content
     }
 
-    fun makeErrorToast (code : Int) {
-        when (code / 100) {
-            4 -> {
-               Toast.makeText(getApplication(),
-               "Код ошибки: $code. Что-то пошло не так, попробуйте снова",
-               Toast.LENGTH_LONG).show()
+    private fun errorProcessing (handler : HandlerError) {
+        when (handler.error) {
+            is ApiError -> {
+                error.postValue(handler)
+                _errorMessage.postValue(R.string.retry_text)
+            }
+            is NetworkError -> {
+                error.postValue(handler)
+                _errorMessage.postValue(R.string.network_problems)
 
             }
-            5 -> {
-                Toast.makeText(getApplication(),
-                    "Код ошибки: $code. Упс! Похоже сервер сломался, попробуйте позднее",
-                    Toast.LENGTH_LONG).show()
+            is UnknownError -> {
+                error.postValue(handler)
+                _errorMessage.postValue(R.string.unknown_problems)
+            }
+        }
+    }
+
+    fun retryOperation () {
+        val handler = error.value ?: return
+        when (handler.operation) {
+            OperationType.LIKE -> {
+                likeById(handler.argument)
+            }
+            OperationType.SHARE -> {
+                shareById(handler.argument.id)
+            }
+            OperationType.SAVE -> {
+                edit(handler.argument)
+                save()
+            }
+            OperationType.REMOVE -> {
+                removeById(handler.argument.id)
             }
         }
     }

@@ -23,4 +23,6 @@
     <string name="retry">Retry</string>
     <string name="empty_posts">There are no posts.\nIf you create a new post, it will appear here</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="network_problems">There is no internet connection. Please try later</string>
+    <string name="unknown_problems">Unknown problem! Try again</string>
 </resources>
