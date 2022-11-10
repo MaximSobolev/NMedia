@@ -48,14 +48,41 @@
         app:layout_constraintTop_toBottomOf="@+id/author"
         app:layout_constraintBottom_toBottomOf="@+id/avatar"/>
 
+    <ImageView
+        android:id="@+id/sending"
+        android:layout_width="@dimen/second_dp"
+        android:layout_height="@dimen/second_dp"
+        android:src="@drawable/ic_baseline_send_24"
+        android:layout_marginTop="@dimen/first_dp"
+        android:layout_marginEnd="@dimen/first_dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/author"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/moreButton"
+        />
+
+    <ImageView
+        android:id="@+id/loaded"
+        android:layout_width="@dimen/second_dp"
+        android:layout_height="@dimen/second_dp"
+        android:src="@drawable/ic_baseline_done_24"
+        android:layout_marginTop="@dimen/first_dp"
+        android:layout_marginEnd="@dimen/first_dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/author"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/moreButton"
+        />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/moreButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:icon="@drawable/ic_baseline_more_vert_24"
-        android:layout_marginTop="@dimen/second_dp"
+        android:layout_marginTop="@dimen/first_dp"
+        app:layout_constraintStart_toEndOf="@id/author"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sending"
         style="@style/Widget.AppTheme.Button" />
 
     <androidx.constraintlayout.widget.Barrier

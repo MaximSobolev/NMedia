@@ -92,6 +92,13 @@ class PostViewHolder(
                     .into(videoPreview)
                 videoPreview.visibility = View.VISIBLE
             }
+            if (post.uploadedOnServer) {
+                sending.visibility = View.GONE
+                loaded.visibility = View.VISIBLE
+            } else {
+                loaded.visibility = View.GONE
+                sending.visibility = View.VISIBLE
+            }
             itemPost = post
         }
     }

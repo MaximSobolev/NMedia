@@ -7,11 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentShowPostBinding
 import ru.netology.firstask.dto.Post
@@ -36,14 +36,6 @@ class ShowPostFragment : Fragment() {
         setupArgument()
         setupObserve()
         setupListeners()
-
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
-            object : OnBackPressedCallback(true){
-                override fun handleOnBackPressed() {
-                    viewModel.loadPosts()
-                    findNavController().navigate(R.id.showPostFragmentToFeedFragment)
-                }
-            })
         return binding?.root
     }
 
@@ -98,10 +90,24 @@ class ShowPostFragment : Fragment() {
                 updatePost(state.posts, postArg)
             }
         }
-        viewModel.postList.observe(viewLifecycleOwner) { posts ->
-                arguments?.postArg?.let { postArg ->
-                   updatePost(posts, postArg)
+
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding?.apply {
+                if (state.error) {
+                    Snackbar.make(root, R.string.retry_text, Snackbar.LENGTH_SHORT)
+                        .setAction(R.string.retry) { viewModel.loadPosts() }
+                        .show()
                 }
+                swipeRefreshFragment.isRefreshing = state.refreshing
+            }
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            binding?.apply {
+                Snackbar.make(root, getString(message), Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.retry) {viewModel.retryOperation()}
+                    .show()
+            }
         }
     }
 
@@ -147,8 +153,7 @@ class ShowPostFragment : Fragment() {
             }
         }
         swipeRefreshFragment.setOnRefreshListener {
-            viewModel.loadPosts()
-            swipeRefreshFragment.isRefreshing = false
+            viewModel.refreshPosts()
         }
     }
 

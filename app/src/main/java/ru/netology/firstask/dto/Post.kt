@@ -4,14 +4,16 @@ import ru.netology.firstask.attachment.AttachmentEmbeddable
 import java.io.Serializable
 
 data class Post (
-    val id : Long,
-    val author : String,
-    val authorAvatar: String,
-    val content : String,
-    val published : String,
-    val likes : Int = 1499999,
-    val share : Int = 9599,
-    val view : Int = 10500,
+    val localId : Long,
+    val id : Long = 0,
+    val author : String = "",
+    val authorAvatar: String = "",
+    val content : String = "",
+    val published : String = "",
+    val likes : Int = 0,
+    val share : Int = 0,
+    val view : Int = 0,
     val likedByMe : Boolean = false,
-    var attachment: AttachmentEmbeddable? = null
+    var attachment: AttachmentEmbeddable? = null,
+    val uploadedOnServer: Boolean = false
 ) : Serializable

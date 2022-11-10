@@ -20,4 +20,6 @@
     <string name="retry_text">Произошла ошибка! Попробуйте снова</string>
     <string name="empty_posts">Постов нет. Если создадите новый пост, то он появится здесь</string>
     <string name="menu_refresh">Обновить</string>
+    <string name="network_problems">Нет подключения к Интернету. Пожалуйста, попробуйте позднее</string>
+    <string name="unknown_problems">Неизвестная ошибка! Попробуйте снова</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentFeedBinding
 import ru.netology.firstask.dto.Post
@@ -97,25 +98,34 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupObserve() {
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            newPost = state.posts.size > adapter.itemCount
-            adapter.submitList(state.posts) {
+        viewModel.data.observe(viewLifecycleOwner) { data ->
+            newPost = data.posts.size > adapter.itemCount
+            adapter.submitList(data.posts) {
                 if (newPost) {
                     binding?.list?.scrollToPosition(0)
                 }
             }
             binding?.apply {
-                progressBar.isVisible = state.loading
-                errorGroup.isVisible = state.error
-                emptyText.isVisible = state.empty
+                emptyText.isVisible = data.empty
             }
         }
-        viewModel.postList.observe(viewLifecycleOwner) { posts ->
-            newPost = posts.size > adapter.itemCount
-            adapter.submitList(posts) {
-                if (newPost) {
-                    binding?.list?.scrollToPosition(0)
+        viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding?.apply {
+                progressBar.isVisible = state.loading
+                if (state.error) {
+                    Snackbar.make(root, R.string.retry_text, Snackbar.LENGTH_SHORT)
+                        .setAction(R.string.retry) { viewModel.loadPosts() }
+                        .show()
                 }
+            }
+            swipeRefreshFragment.isRefreshing = state.refreshing
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            binding?.apply {
+                Snackbar.make(root, getString(message), Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.retry) {viewModel.retryOperation()}
+                    .show()
             }
         }
     }
@@ -133,13 +143,9 @@ class FeedFragment : Fragment() {
                     })
                 }
             }
-            retryButton.setOnClickListener{
-                viewModel.loadPosts()
-            }
         }
         swipeRefreshFragment.setOnRefreshListener {
-            viewModel.loadPosts()
-            swipeRefreshFragment.isRefreshing = false
+            viewModel.refreshPosts()
         }
     }
 
