@@ -15,5 +15,6 @@ data class Post (
     val view : Int = 0,
     val likedByMe : Boolean = false,
     var attachment: AttachmentEmbeddable? = null,
-    val uploadedOnServer: Boolean = false
+    val uploadedOnServer: Boolean = false,
+    val displayOnScreen : Boolean = true
 ) : Serializable

@@ -57,4 +57,21 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/second_dp"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newerPosts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button.Icon"
+        android:backgroundTint="@color/design_default_color_secondary"
+        android:text="@string/newer_posts"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:iconTint="@color/black"
+        app:icon="@drawable/ic_baseline_arrow_upward_24"
+        android:layout_gravity="top|center"
+        android:layout_marginTop="@dimen/second_dp"
+        android:visibility="gone"
+        />
+
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

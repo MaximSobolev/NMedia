@@ -22,4 +22,5 @@
     <string name="menu_refresh">Обновить</string>
     <string name="network_problems">Нет подключения к Интернету. Пожалуйста, попробуйте позднее</string>
     <string name="unknown_problems">Неизвестная ошибка! Попробуйте снова</string>
+    <string name="newer_posts">Свежие записи</string>
 </resources>

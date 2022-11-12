@@ -21,14 +21,15 @@ data class PostEntity (
     val likedByMe : Boolean = false,
     @Embedded
     var attachment: AttachmentEmbeddable? = null,
-    val uploadedOnServer: Boolean = false
+    val uploadedOnServer: Boolean = false,
+    val displayOnScreen : Boolean = true
 ) {
     fun toDto() = Post(localId, id, author, authorAvatar, content, published, likes, share, view,
-        likedByMe, attachment, uploadedOnServer)
+        likedByMe, attachment, uploadedOnServer, displayOnScreen)
 
     companion object {
         fun fromDto(post : Post) = PostEntity(post.localId, post.id, post.author, post.authorAvatar, post.content,
-            post.published, post.likes, post.share, post.view, post.likedByMe, post.attachment, post.uploadedOnServer)
+            post.published, post.likes, post.share, post.view, post.likedByMe, post.attachment, post.uploadedOnServer, post.displayOnScreen)
     }
 }
 
