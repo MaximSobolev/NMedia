@@ -2,6 +2,8 @@ package ru.netology.firstask.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.db.AppDb
@@ -28,9 +30,15 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     private val repository : PostRepository = PostRepositoryImpl(
         AppDb.getInstance(application).postDao
     )
-    val data : LiveData<FeedModel> = repository.data.map {
-        FeedModel(it, it.isEmpty())
+    val data : LiveData<FeedModel> = repository.data
+        .map {FeedModel(it, it.isEmpty())}
+        .asLiveData(Dispatchers.Default)
+
+    val newerCount : LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .asLiveData(Dispatchers.Default)
     }
+
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState : LiveData<FeedModelState>
         get() = _dataState
@@ -189,6 +197,12 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
             OperationType.REMOVE -> {
                 removeById(handler.argument.id)
             }
+        }
+    }
+
+    fun displayNewerPosts() {
+        viewModelScope.launch {
+            repository.displayNewerPosts()
         }
     }
 }

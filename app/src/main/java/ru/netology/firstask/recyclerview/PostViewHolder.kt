@@ -67,39 +67,44 @@ class PostViewHolder(
 
     fun bind(post: Post) {
         binding.apply {
-            author.text = post.author
-            Glide.with(avatar)
-                .load("${BASE_URL}/avatars/${post.authorAvatar}")
-                .placeholder(R.drawable.ic_baseline_downloading_24)
-                .error(R.drawable.ic_baseline_error_outline_24)
-                .timeout(10_000)
-                .apply(options.circleCrop())
-                .into(avatar)
-            published.text = post.published
-            content.text = post.content
-            like.text = viewModel.largeNumberDisplay(post.likes)
-            share.text = viewModel.largeNumberDisplay(post.share)
-            viewCount.text = viewModel.largeNumberDisplay(post.view)
-            like.isChecked = post.likedByMe
-            if (post.attachment == null) {
-                videoPreview.visibility = View.GONE
-            } else {
-                Glide.with(videoPreview)
-                    .load("${BASE_URL}/images/${post.attachment?.url}")
+                if (post.displayOnScreen) {
+                    cardPostContainer.visibility = View.VISIBLE
+                } else {
+                    cardPostContainer.visibility = View.GONE
+                }
+                author.text = post.author
+                Glide.with(avatar)
+                    .load("${BASE_URL}/avatars/${post.authorAvatar}")
                     .placeholder(R.drawable.ic_baseline_downloading_24)
                     .error(R.drawable.ic_baseline_error_outline_24)
                     .timeout(10_000)
-                    .into(videoPreview)
-                videoPreview.visibility = View.VISIBLE
-            }
-            if (post.uploadedOnServer) {
-                sending.visibility = View.GONE
-                loaded.visibility = View.VISIBLE
-            } else {
-                loaded.visibility = View.GONE
-                sending.visibility = View.VISIBLE
-            }
-            itemPost = post
+                    .apply(options.circleCrop())
+                    .into(avatar)
+                published.text = post.published
+                content.text = post.content
+                like.text = viewModel.largeNumberDisplay(post.likes)
+                share.text = viewModel.largeNumberDisplay(post.share)
+                viewCount.text = viewModel.largeNumberDisplay(post.view)
+                like.isChecked = post.likedByMe
+                if (post.attachment == null) {
+                    videoPreview.visibility = View.GONE
+                } else {
+                    Glide.with(videoPreview)
+                        .load("${BASE_URL}/images/${post.attachment?.url}")
+                        .placeholder(R.drawable.ic_baseline_downloading_24)
+                        .error(R.drawable.ic_baseline_error_outline_24)
+                        .timeout(10_000)
+                        .into(videoPreview)
+                    videoPreview.visibility = View.VISIBLE
+                }
+                if (post.uploadedOnServer) {
+                    sending.visibility = View.GONE
+                    loaded.visibility = View.VISIBLE
+                } else {
+                    loaded.visibility = View.GONE
+                    sending.visibility = View.VISIBLE
+                }
+                itemPost = post
         }
     }
 }

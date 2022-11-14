@@ -128,6 +128,13 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
+            binding?.apply {
+                if (count != 0) {
+                    newerPosts.visibility = View.VISIBLE
+                }
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -141,6 +148,12 @@ class FeedFragment : Fragment() {
                     Bundle().apply{
                         textArg = draft
                     })
+                }
+            }
+            newerPosts.setOnClickListener {
+                viewModel.displayNewerPosts()
+                binding?.apply {
+                    newerPosts.visibility = View.GONE
                 }
             }
         }

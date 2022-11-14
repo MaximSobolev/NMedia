@@ -1,15 +1,15 @@
 package ru.netology.firstask.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import ru.netology.firstask.entity.PostEntity
 @Dao
 interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY localId DESC")
-    fun getAll() : LiveData<List<PostEntity>>
+    fun getAll() : Flow<List<PostEntity>>
 
     @Query("""
                 UPDATE PostEntity SET
@@ -43,4 +43,11 @@ interface PostDao {
 
     suspend fun save(post : PostEntity) = if (post.id == 0L) insert(post) else
         updateContentById(post.id, post.content)
+
+    @Query("""
+                UPDATE PostEntity SET
+                displayOnScreen = 1 
+                WHERE displayOnScreen = 0
+            """)
+    suspend fun displayPosts ()
 }
