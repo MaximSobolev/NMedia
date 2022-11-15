@@ -2,6 +2,7 @@ package ru.netology.firstask.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.netology.firstask.dto.Post
+import ru.netology.firstask.model.PhotoModel
 
 interface PostRepository {
     val data : Flow<List<Post>>
@@ -11,5 +12,6 @@ interface PostRepository {
     suspend fun shareByIdAsync(id: Long)
     suspend fun removeByIdAsync(id: Long)
     suspend fun saveAsync(post: Post)
+    suspend fun saveWithAttachments(post: Post, photoModel: PhotoModel)
     suspend fun displayNewerPosts()
 }

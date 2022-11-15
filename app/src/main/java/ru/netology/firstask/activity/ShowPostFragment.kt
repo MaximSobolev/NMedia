@@ -73,7 +73,7 @@ class ShowPostFragment : Fragment() {
                     videoPreview.visibility = View.GONE
                 } else {
                     Glide.with(videoPreview)
-                        .load("${BASE_URL}/images/${postArg.attachment?.url}")
+                        .load("${BASE_URL}/media/${postArg.attachment?.url}")
                         .placeholder(R.drawable.ic_baseline_downloading_24)
                         .error(R.drawable.ic_baseline_error_outline_24)
                         .timeout(10_000)
@@ -150,6 +150,12 @@ class ShowPostFragment : Fragment() {
                         }
                     }.show()
                 }
+                videoPreview.setOnClickListener {
+                    findNavController().navigate(R.id.showPostFragmentToShowPhotoFragment,
+                        Bundle().apply
+                        { textArg = postArg.attachment?.url })
+                }
+
             }
         }
         swipeRefreshFragment.setOnRefreshListener {

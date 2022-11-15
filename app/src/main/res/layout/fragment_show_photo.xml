@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/showPhotoContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top">
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/fourth_dp"
+            android:layout_height="@dimen/fourth_dp"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:layout_margin="@dimen/first_dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        tools:src = "@tools:sample/avatars"
+        android:layout_gravity="center" />
+
+</FrameLayout>

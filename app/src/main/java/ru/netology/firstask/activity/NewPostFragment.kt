@@ -1,9 +1,8 @@
 package ru.netology.firstask.activity
 
+import android.app.Activity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,11 +12,32 @@ import ru.netology.firstask.databinding.FragmentNewPostBinding
 import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.PostViewModel
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toFile
+import androidx.core.view.MenuProvider
+import androidx.core.view.isVisible
+import com.github.dhaval2404.imagepicker.ImagePicker
 
 
 class NewPostFragment : Fragment() {
     private var binding : FragmentNewPostBinding? = null
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
+    private val imageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        when(it.resultCode) {
+            ImagePicker.RESULT_ERROR -> {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.error_photo,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            Activity.RESULT_OK -> {
+                val uri = it.data?.data
+                viewModel.savePhoto(uri, uri?.toFile())
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,8 +45,10 @@ class NewPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         initBinding(inflater, container)
+        setupMenu()
         setupArguments()
         setupListeners()
+        setupObserver()
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true){
@@ -41,11 +63,6 @@ class NewPostFragment : Fragment() {
             })
         return binding?.root
     }
-    private fun setupArguments() {
-        arguments?.textArg.let {
-            binding?.addContent?.setText(it)
-        }
-    }
 
     private fun initBinding(inflater: LayoutInflater, container: ViewGroup?) {
         binding = FragmentNewPostBinding.inflate(
@@ -55,21 +72,66 @@ class NewPostFragment : Fragment() {
         )
     }
 
+    private fun setupMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.options_save_post, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                if (menuItem.itemId == R.id.save) {
+                    binding?.apply {
+                        if (addContent.text.isBlank()) {
+                            Toast.makeText(
+                                requireContext(),
+                                R.string.error_empty_text,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.changeContent(binding?.addContent?.text.toString())
+                            viewModel.save()
+                            findNavController().navigateUp()
+                        }
+                    }
+                    true
+                } else {
+                    false
+                }
+
+        }, viewLifecycleOwner)
+    }
+
+    private fun setupArguments() {
+        arguments?.textArg.let {
+            binding?.addContent?.setText(it)
+        }
+    }
+
     private fun setupListeners() {
         binding?.apply {
-            addPost.setOnClickListener {
-                if (addContent.text.isBlank()) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.error_empty_text,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                } else {
-                    viewModel.changeContent(binding?.addContent?.text.toString())
-                    viewModel.save()
-                    findNavController().navigateUp()
-                }
+            takePhoto.setOnClickListener {
+                ImagePicker.Builder(requireActivity())
+                    .cameraOnly()
+                    .maxResultSize(2048, 2048)
+                    .createIntent(imageLauncher::launch)
+            }
+            downloadPhoto.setOnClickListener {
+                ImagePicker.Builder(requireActivity())
+                    .galleryOnly()
+                    .maxResultSize(2048, 2048)
+                    .createIntent (imageLauncher::launch)
+            }
+            previewClear.setOnClickListener {
+                viewModel.savePhoto(null, null)
+            }
+        }
+    }
+
+    private fun setupObserver() {
+        binding?.apply {
+            viewModel.photo.observe(viewLifecycleOwner) {
+                previewContainer.isVisible = it?.uri != null
+                previewPhoto.setImageURI(it?.uri)
             }
         }
     }

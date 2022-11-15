@@ -19,7 +19,13 @@
                 app:destination="@id/showPostFragment"
                 app:enterAnim="@android:anim/fade_in"
                 app:exitAnim="@android:anim/fade_out" />
+            <action
+                android:id="@+id/feedFragmentToShowPhotoFragment"
+                app:destination="@id/showPhotoFragment"
+                app:enterAnim="@android:anim/fade_in"
+                app:exitAnim="@android:anim/fade_out" />
     </fragment>
+
     <fragment
         android:id="@+id/newPostFragment"
         android:name="ru.netology.firstask.activity.NewPostFragment"
@@ -31,6 +37,7 @@
             app:enterAnim="@android:anim/fade_in"
             app:exitAnim="@android:anim/fade_out"/>
     </fragment>
+
     <fragment
         android:id="@+id/showPostFragment"
         android:name="ru.netology.firstask.activity.ShowPostFragment"
@@ -46,8 +53,19 @@
             app:destination="@+id/feedFragment"
             app:enterAnim="@android:anim/fade_in"
             app:exitAnim="@android:anim/fade_out"/>
+        <action
+            android:id="@+id/showPostFragmentToShowPhotoFragment"
+            app:destination="@id/showPhotoFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/showPhotoFragment"
+        android:name="ru.netology.firstask.activity.ShowPhotoFragment"
+        android:label="show_photo"
+        tools:layout="@layout/fragment_show_photo"/>
 
 
 </navigation>

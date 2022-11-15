@@ -58,11 +58,20 @@ class PostViewHolder(
             itemPost?.let { onInteractionListener.openPost(it)}
         }
 
+    private val openPhotoFragmentOnClickListener: View.OnClickListener =
+        View.OnClickListener {
+            itemPost?.let { post ->
+                val url = post.attachment?.url ?: return@OnClickListener
+                onInteractionListener.openPhoto(url)
+            }
+        }
+
     init {
         binding.like.setOnClickListener(likeOnClickListener)
         binding.share.setOnClickListener(shareOnClickListener)
         binding.moreButton.setOnClickListener(menuOnClickListener)
         binding.cardPostContainer.setOnClickListener(openPostFragmentOnClickListener)
+        binding.videoPreview.setOnClickListener(openPhotoFragmentOnClickListener)
     }
 
     fun bind(post: Post) {
@@ -90,7 +99,7 @@ class PostViewHolder(
                     videoPreview.visibility = View.GONE
                 } else {
                     Glide.with(videoPreview)
-                        .load("${BASE_URL}/images/${post.attachment?.url}")
+                        .load("${BASE_URL}/media/${post.attachment?.url}")
                         .placeholder(R.drawable.ic_baseline_downloading_24)
                         .error(R.drawable.ic_baseline_error_outline_24)
                         .timeout(10_000)
