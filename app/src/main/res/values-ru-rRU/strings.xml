@@ -26,6 +26,5 @@
     <string name="delete_photo">Удалить фото</string>
     <string name="error_photo">Не удалось загрузить фото! Попробуйте снова</string>
     <string name="error_show_photo">Не удалось загрузить фото! Попробуйте позднее</string>
-    <string name="return_on_back">Вернуться назад</string>
     <string name="return_back">Вернуться назад</string>
 </resources>
