@@ -25,7 +25,6 @@ class FeedFragment : Fragment() {
     private var binding : FragmentFeedBinding? = null
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private lateinit var adapter: PostAdapter
-    private var newPost = false
     private lateinit var swipeRefreshFragment : SwipeRefreshLayout
 
     override fun onCreateView(
@@ -87,6 +86,12 @@ class FeedFragment : Fragment() {
                      { postArg = post })
                 }
 
+                override fun openPhoto(url: String) {
+                    findNavController().navigate(R.id.feedFragmentToShowPhotoFragment,
+                        Bundle().apply
+                        { textArg = url })
+                }
+
             })
         binding?.list?.adapter = adapter
     }
@@ -99,12 +104,7 @@ class FeedFragment : Fragment() {
 
     private fun setupObserve() {
         viewModel.data.observe(viewLifecycleOwner) { data ->
-            newPost = data.posts.size > adapter.itemCount
-            adapter.submitList(data.posts) {
-                if (newPost) {
-                    binding?.list?.scrollToPosition(0)
-                }
-            }
+            adapter.submitList(data.posts)
             binding?.apply {
                 emptyText.isVisible = data.empty
             }

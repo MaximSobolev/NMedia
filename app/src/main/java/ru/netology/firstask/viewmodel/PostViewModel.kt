@@ -1,6 +1,7 @@
 package ru.netology.firstask.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -12,8 +13,10 @@ import ru.netology.firstask.error.*
 import ru.netology.firstask.model.FeedModel
 import ru.netology.firstask.model.FeedModelState
 import ru.netology.firstask.error.OperationType
+import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.repository.PostRepositoryImpl
+import java.io.File
 import java.lang.Exception
 import kotlin.math.floor
 
@@ -48,6 +51,10 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     val errorMessage : LiveData<Int>
             get() = _errorMessage
     private val error = MutableLiveData<HandlerError>()
+
+    private val _photo = MutableLiveData<PhotoModel?>(null)
+    val photo : LiveData<PhotoModel?>
+        get() = _photo
 
 
     init {
@@ -108,12 +115,19 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
 
     fun save () {
         viewModelScope.launch {
-            edited.value?.let {
+            edited.value?.let { post ->
                 try {
-                    repository.saveAsync(it)
+                    photo.value?.let { photoModel ->
+                        if (photoModel.file != null) {
+                            repository.saveWithAttachments(post, photoModel)
+                        } else {
+                            repository.saveAsync(post)
+                        }
+                    } ?: repository.saveAsync(post)
                 } catch (e : AppError) {
-                    val post = edited.value ?: return@let
-                    errorProcessing(HandlerError(OperationType.SAVE, post, e))
+                    val postError = edited.value ?: return@let
+                    val photo = photo.value
+                    errorProcessing(HandlerError(OperationType.SAVE, postError, e, photo))
                 }
             }
             edited.postValue(empty)
@@ -132,6 +146,10 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
 
     fun edit (post: Post) {
         edited.value = post
+    }
+
+    fun editPhoto (photoModel: PhotoModel?) {
+        _photo.postValue(photoModel)
     }
 
     fun largeNumberDisplay (number : Int) : String {
@@ -192,6 +210,7 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
             }
             OperationType.SAVE -> {
                 edit(handler.argument)
+                editPhoto(handler.photo)
                 save()
             }
             OperationType.REMOVE -> {
@@ -204,5 +223,9 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.displayNewerPosts()
         }
+    }
+
+    fun savePhoto(uri : Uri?, file : File?) {
+        _photo.postValue(PhotoModel(uri, file))
     }
 }

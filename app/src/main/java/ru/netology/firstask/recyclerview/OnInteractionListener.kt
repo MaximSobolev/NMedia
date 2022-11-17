@@ -8,4 +8,5 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onRemove(post: Post)
     fun openPost(post : Post)
+    fun openPhoto(url : String)
 }

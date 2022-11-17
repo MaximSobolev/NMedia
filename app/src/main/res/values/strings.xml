@@ -26,4 +26,8 @@
     <string name="network_problems">There is no internet connection. Please try later</string>
     <string name="unknown_problems">Unknown problem! Try again</string>
     <string name="newer_posts">New posts</string>
+    <string name="delete_photo">Delete photo</string>
+    <string name="error_photo">Failed to upload photo! Try again</string>
+    <string name="error_show_photo">Failed to upload photo! Please try later</string>
+    <string name="return_back">Return</string>
 </resources>
