@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+        <TextView
+            android:id="@+id/signInHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_up_header"
+            android:textSize="@dimen/third_sp"
+            android:textColor="@color/design_default_color_primary"
+            android:layout_marginBottom="@dimen/second_dp"
+            android:layout_gravity="center"
+            />
+        <EditText
+            android:id="@+id/userName"
+            android:layout_width="@dimen/two_hundred_seventy_dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/name"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:layout_marginBottom="@dimen/first_dp"
+            android:layout_gravity="center"
+            android:background="@drawable/edit_text_background"
+            android:padding="@dimen/first_dp"
+
+            />
+        <EditText
+            android:id="@+id/userLogin"
+            android:layout_width="@dimen/two_hundred_seventy_dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/login"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine"
+            android:layout_marginBottom="@dimen/first_dp"
+            android:layout_gravity="center"
+            android:background="@drawable/edit_text_background"
+            android:padding="@dimen/first_dp"
+
+            />
+        <EditText
+            android:id="@+id/userPassword"
+            android:layout_width="@dimen/two_hundred_seventy_dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:layout_marginBottom="@dimen/first_dp"
+            android:layout_gravity="center"
+            android:background="@drawable/edit_text_background"
+            android:padding="@dimen/first_dp"
+            />
+        <EditText
+            android:id="@+id/repeatPassword"
+            android:layout_width="@dimen/two_hundred_seventy_dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/repeat_password"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:layout_marginBottom="@dimen/second_dp"
+            android:layout_gravity="center"
+            android:background="@drawable/edit_text_background"
+            android:padding="@dimen/first_dp"
+            />
+        <Button
+            android:id="@+id/addAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+            app:icon = "@drawable/ic_avatar"
+            app:iconTint = "@color/vk_grey"
+            app:strokeColor = "@color/vk_grey"
+            android:text="@string/add_an_avatar"
+            android:textSize="@dimen/second_sp"
+            android:textColor="@color/vk_grey"
+            android:layout_gravity="center" />
+
+        <FrameLayout
+            android:id="@+id/avatarContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/first_dp"
+            android:layout_gravity="center"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/userAvatar"
+                android:layout_width="@dimen/tenth_dp"
+                android:layout_height="@dimen/tenth_dp"
+                tools:src = "@tools:sample/avatars"
+                android:contentDescription="@string/avatar"/>
+            <ImageView
+                android:id="@+id/deleteAvatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_close_24"
+                app:tint="@color/design_default_color_primary"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_gravity="top|end"
+                />
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/signUpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.Button"
+            android:backgroundTint="@color/design_default_color_primary"
+            android:text="@string/sign_up"
+            android:textSize="@dimen/second_sp"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/second_dp"
+            />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="@dimen/third_dp"
+            android:layout_height="@dimen/third_dp"
+            android:layout_marginTop="@dimen/first_dp"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
+</ScrollView>

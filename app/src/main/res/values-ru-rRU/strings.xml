@@ -27,4 +27,23 @@
     <string name="error_photo">Не удалось загрузить фото! Попробуйте снова</string>
     <string name="error_show_photo">Не удалось загрузить фото! Попробуйте позднее</string>
     <string name="return_back">Вернуться назад</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">"Зарегистрироваться "</string>
+    <string name="sign_out">Выйти</string>
+    <string name="sign_in_header">Вход НМедиа</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="name">Имя</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="sign_up_header">Регистрация НМедиа</string>
+    <string name="avatar">Фото или картинка</string>
+    <string name="add_an_avatar">Добавить аватар</string>
+    <string name="empty_login_or_password">Логин и пароль не могут быть пустыми</string>
+    <string name="login_or_password_are_wrong">Логин или пароль введены неверно</string>
+    <string name="dialog_text">Для выполнения этого действия необходимо войти</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="dont_have_account">Если у вас нет аккаунта, зарегестрируйтесь</string>
+    <string name="input_fields_empty">Поля ввода не могут быть пустыми</string>
+    <string name="passwords_didnt_match">Эти пароли не совпадают. Попробуйте еще раз</string>
 </resources>
