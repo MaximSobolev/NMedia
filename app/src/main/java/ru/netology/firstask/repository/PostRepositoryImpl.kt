@@ -54,7 +54,7 @@ class PostRepositoryImpl(
                 }
                 var body = response.body() ?: throw ApiError(response.code(), response.message())
                 body = body.map {
-                    it.copy(displayOnScreen = false, uploadedOnServer = true)
+                    it.copy(localId = it.id, displayOnScreen = false, uploadedOnServer = true)
                 }
                 dao.insert(body.toEntity())
                 emit(body.size)
@@ -105,14 +105,14 @@ class PostRepositoryImpl(
     }
 
     override suspend fun saveAsync(post: Post) {
-           dao.save(PostEntity.fromDto(post).copy(uploadedOnServer = false))
+           dao.save(PostEntity.fromDto(post).copy(uploadedOnServer = false, displayOnScreen = true))
         try {
             val response = PostApi.retrofitService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true))
+            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true, displayOnScreen = true))
         } catch (e : IOException) {
             throw NetworkError()
         } catch (e : Exception) {
@@ -125,14 +125,14 @@ class PostRepositoryImpl(
             val media = upload(photoModel)
             dao.save(PostEntity.fromDto(
                 post.copy(attachment = AttachmentEmbeddable(url = media.id, type = AttachmentType.IMAGE),
-                    uploadedOnServer = false)))
+                    uploadedOnServer = false, displayOnScreen = true)))
             val response = PostApi.retrofitService.save(
                 post.copy(attachment = AttachmentEmbeddable(url = media.id, type = AttachmentType.IMAGE)))
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true))
+            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true, displayOnScreen = true))
         } catch (e : IOException) {
             throw NetworkError()
         } catch (e : Exception) {

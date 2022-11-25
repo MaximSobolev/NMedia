@@ -24,6 +24,11 @@
                 app:destination="@id/showPhotoFragment"
                 app:enterAnim="@android:anim/fade_in"
                 app:exitAnim="@android:anim/fade_out" />
+            <action
+                android:id="@+id/feedFragmentToSignInFragment"
+                app:destination="@id/signInFragment"
+                app:enterAnim="@android:anim/fade_in"
+                app:exitAnim="@android:anim/fade_out"/>
     </fragment>
 
     <fragment
@@ -58,6 +63,11 @@
             app:destination="@id/showPhotoFragment"
             app:enterAnim="@android:anim/fade_in"
             app:exitAnim="@android:anim/fade_out" />
+        <action
+            android:id="@+id/showPostFragmentToSignInFragment"
+            app:destination="@id/signInFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
 
     </fragment>
 
@@ -66,6 +76,25 @@
         android:name="ru.netology.firstask.activity.ShowPhotoFragment"
         android:label="show_photo"
         tools:layout="@layout/fragment_show_photo"/>
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="ru.netology.firstask.activity.SignInFragment"
+        tools:layout="@layout/fragment_sign_in"
+        android:label="sign_in">
+        <action
+            android:id="@+id/signInFragmentToSignUpFragment"
+            app:destination="@id/signUpFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="ru.netology.firstask.activity.SignUpFragment"
+        tools:layout="@layout/fragment_sign_up"
+        android:label="sign_up">
+    </fragment>
 
 
 </navigation>

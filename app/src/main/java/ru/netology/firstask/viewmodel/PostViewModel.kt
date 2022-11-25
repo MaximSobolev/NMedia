@@ -4,10 +4,12 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.db.AppDb
+import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.FeedModel
@@ -16,6 +18,7 @@ import ru.netology.firstask.error.OperationType
 import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.repository.PostRepositoryImpl
+import ru.netology.firstask.sharedPreferences.AppAuth
 import java.io.File
 import java.lang.Exception
 import kotlin.math.floor
@@ -33,10 +36,20 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     private val repository : PostRepository = PostRepositoryImpl(
         AppDb.getInstance(application).postDao
     )
-    val data : LiveData<FeedModel> = repository.data
-        .map {FeedModel(it, it.isEmpty())}
-        .asLiveData(Dispatchers.Default)
 
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
+    val data : LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            repository.data
+                .map { posts ->
+                    FeedModel(
+                        posts.map { it.copy(ownedByMe = it.authorId == myId)},
+                        posts.isEmpty())
+                }
+        }.asLiveData(Dispatchers.Default)
+
+    @kotlinx.coroutines.ExperimentalCoroutinesApi
     val newerCount : LiveData<Int> = data.switchMap {
         repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
             .asLiveData(Dispatchers.Default)
@@ -46,7 +59,7 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     val dataState : LiveData<FeedModelState>
         get() = _dataState
     private val edited = MutableLiveData (empty)
-    private var draft = ""
+    private var draft : DraftPost? = null
     private val _errorMessage = MutableLiveData<Int>()
     val errorMessage : LiveData<Int>
             get() = _errorMessage
@@ -148,7 +161,7 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
         edited.value = post
     }
 
-    fun editPhoto (photoModel: PhotoModel?) {
+    private fun editPhoto (photoModel: PhotoModel?) {
         _photo.postValue(photoModel)
     }
 
@@ -173,12 +186,13 @@ class PostViewModel(application : Application) : AndroidViewModel(application) {
     }
 
     fun setDraft (content : String) {
-        draft = content
+        draft = DraftPost(content, photo.value)
+        _photo.postValue(null)
     }
-    fun getDraft() : String {
-        val content = draft
-        draft = ""
-        return content
+    fun getDraft() : DraftPost? {
+        val draftPost = draft
+        draft = null
+        return draftPost
     }
 
     private fun errorProcessing (handler : HandlerError) {

@@ -1,6 +1,7 @@
 package ru.netology.firstask.activity
 
 import android.app.Activity
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -9,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentNewPostBinding
-import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.PostViewModel
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +17,9 @@ import androidx.core.net.toFile
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import com.github.dhaval2404.imagepicker.ImagePicker
+import ru.netology.firstask.dto.DraftPost
+import ru.netology.firstask.sharedPreferences.AppAuth
+import ru.netology.firstask.util.DraftPostArg
 
 
 class NewPostFragment : Fragment() {
@@ -33,7 +36,7 @@ class NewPostFragment : Fragment() {
                 ).show()
             }
             Activity.RESULT_OK -> {
-                val uri = it.data?.data
+                val uri : Uri? = it.data?.data
                 viewModel.savePhoto(uri, uri?.toFile())
             }
         }
@@ -57,7 +60,6 @@ class NewPostFragment : Fragment() {
                         if (addContent.text.isNotBlank())
                         viewModel.setDraft(addContent.text.toString())
                     }
-
                     findNavController().navigate(R.id.newPostFragmentToFeedFragment)
                 }
             })
@@ -102,8 +104,9 @@ class NewPostFragment : Fragment() {
     }
 
     private fun setupArguments() {
-        arguments?.textArg.let {
-            binding?.addContent?.setText(it)
+        arguments?.draftPostArg.let {
+            binding?.addContent?.setText(it?.content)
+            viewModel.savePhoto(it?.photo?.uri, it?.photo?.file)
         }
     }
 
@@ -111,18 +114,27 @@ class NewPostFragment : Fragment() {
         binding?.apply {
             takePhoto.setOnClickListener {
                 ImagePicker.Builder(requireActivity())
+                    .crop()
                     .cameraOnly()
                     .maxResultSize(2048, 2048)
                     .createIntent(imageLauncher::launch)
             }
             downloadPhoto.setOnClickListener {
                 ImagePicker.Builder(requireActivity())
+                    .crop()
                     .galleryOnly()
                     .maxResultSize(2048, 2048)
-                    .createIntent (imageLauncher::launch)
+                    .createIntent(imageLauncher::launch)
             }
             previewClear.setOnClickListener {
                 viewModel.savePhoto(null, null)
+            }
+            dialogYes.setOnClickListener{
+                AppAuth.getInstance().removeAuth()
+                findNavController().navigateUp()
+            }
+            dialogCancel.setOnClickListener{
+                dialogWindow.visibility = View.GONE
             }
         }
     }
@@ -137,6 +149,6 @@ class NewPostFragment : Fragment() {
     }
 
     companion object {
-        var Bundle.textArg: String? by StringArg
+        var Bundle.draftPostArg : DraftPost? by DraftPostArg
     }
 }

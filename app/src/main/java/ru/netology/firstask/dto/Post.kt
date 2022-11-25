@@ -6,6 +6,7 @@ import java.io.Serializable
 data class Post (
     val localId : Long,
     val id : Long = 0,
+    val authorId : Long = 0,
     val author : String = "",
     val authorAvatar: String = "",
     val content : String = "",
@@ -16,5 +17,6 @@ data class Post (
     val likedByMe : Boolean = false,
     var attachment: AttachmentEmbeddable? = null,
     val uploadedOnServer: Boolean = false,
-    val displayOnScreen : Boolean = true
+    val displayOnScreen : Boolean = true,
+    val ownedByMe : Boolean = false
 ) : Serializable

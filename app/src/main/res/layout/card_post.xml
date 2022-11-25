@@ -31,7 +31,7 @@
         android:text="@string/author"
         android:layout_marginStart="@dimen/second_dp"
         app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintEnd_toStartOf="@+id/moreButton"
+        app:layout_constraintEnd_toStartOf="@+id/loaded"
         app:layout_constraintStart_toEndOf="@+id/avatar"
         app:layout_constraintTop_toTopOf="@+id/avatar"
         app:layout_constraintBottom_toTopOf="@+id/published"/>

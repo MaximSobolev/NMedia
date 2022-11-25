@@ -36,6 +36,7 @@ class PostViewHolder(
             itemPost?.let { post ->
                 PopupMenu(view.context, view).apply {
                     inflate(R.menu.options_post)
+                    menu.setGroupVisible(R.id.owner, post.ownedByMe)
                     setOnMenuItemClickListener { item ->
                         when(item.itemId) {
                             R.id.remove -> {
@@ -113,6 +114,7 @@ class PostViewHolder(
                     loaded.visibility = View.GONE
                     sending.visibility = View.VISIBLE
                 }
+                moreButton.visibility = if (post.ownedByMe) View.VISIBLE else View.GONE
                 itemPost = post
         }
     }
