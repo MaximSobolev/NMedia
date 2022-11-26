@@ -14,7 +14,7 @@ import java.io.IOException
 class SignUpRepositoryImpl : SignUpRepository {
     override suspend fun signUp(name: String, login: String, pass: String): AuthState {
         try {
-            val response = PostApi.retrofitService.signUp(login, pass, name)
+            val response = PostApi.userService.signUp(login, pass, name)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -35,7 +35,7 @@ class SignUpRepositoryImpl : SignUpRepository {
         photoModel: PhotoModel
     ): AuthState {
         try {
-            val response = PostApi.retrofitService.signUpWithAvatar(
+            val response = PostApi.userService.signUpWithAvatar(
                 login.toRequestBody("text/plain".toMediaType()),
                 pass.toRequestBody("text/plain".toMediaType()),
                 name.toRequestBody("text/plain".toMediaType()),

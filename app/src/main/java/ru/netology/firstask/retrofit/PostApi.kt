@@ -32,4 +32,7 @@ object PostApi {
     val retrofitService : PostApiService by lazy {
         retrofit.create(PostApiService::class.java)
     }
+    val userService : UserApiService by lazy {
+        retrofit.create(UserApiService::class.java)
+    }
 }

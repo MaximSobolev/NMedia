@@ -1,10 +1,12 @@
 package ru.netology.firstask.sharedPreferences
 
 import android.content.Context
+import androidx.work.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.netology.firstask.model.AuthState
+import ru.netology.firstask.worker.SendPushTokenWorker
 import java.lang.IllegalStateException
 
 class AppAuth private constructor(context : Context) {
@@ -13,6 +15,8 @@ class AppAuth private constructor(context : Context) {
     private val tokenKey = "token"
     private val avatarKey = "avatar"
     private val _authStateFlow : MutableStateFlow<AuthState>
+    private val workManager : WorkManager =
+        WorkManager.getInstance(context)
 
     init {
         val id = prefs.getLong(idKey, 0)
@@ -34,7 +38,7 @@ class AppAuth private constructor(context : Context) {
     val authStateFlow : StateFlow<AuthState> = _authStateFlow.asStateFlow()
 
     @Synchronized
-    fun setAuth(id : Long, token : String, avatar : String) {
+    fun setAuth(id : Long, token : String, avatar : String?) {
         _authStateFlow.value = AuthState(id, token, avatar)
         with(prefs.edit()) {
             putLong(idKey, id)
@@ -42,6 +46,7 @@ class AppAuth private constructor(context : Context) {
             putString(avatarKey, avatar)
             apply()
         }
+        sendPushToken()
     }
 
     @Synchronized
@@ -51,6 +56,19 @@ class AppAuth private constructor(context : Context) {
             clear()
             commit()
         }
+        sendPushToken()
+    }
+
+    fun sendPushToken (token : String? = null) {
+        val data = workDataOf(SendPushTokenWorker.TOKEN_KEY to token)
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<SendPushTokenWorker>()
+            .setInputData(data)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueue(request)
 
     }
 

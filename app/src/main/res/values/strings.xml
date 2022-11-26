@@ -49,4 +49,7 @@
     <string name="dont_have_account">If you don\'t have an account, sign up</string>
     <string name="input_fields_empty">Input fields cannot be empty</string>
     <string name="passwords_didnt_match">Those passwords didn’t match. Try again</string>
+    <string name="google_api_unavailable">Google Api Unavailable</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
 </resources>

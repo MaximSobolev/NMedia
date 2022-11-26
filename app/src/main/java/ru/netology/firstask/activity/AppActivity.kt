@@ -7,9 +7,12 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import ru.netology.firstask.R
 import ru.netology.firstask.activity.NewPostFragment.Companion.draftPostArg
 import ru.netology.firstask.dto.DraftPost
@@ -76,6 +79,21 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                     draftPostArg = DraftPost(text, null)
                 }
             )
+        }
+        checkGoogleApiAvailability()
+    }
+
+    private fun checkGoogleApiAvailability() {
+        with(GoogleApiAvailability.getInstance()) {
+            val code = isGooglePlayServicesAvailable(this@AppActivity)
+            if (code == ConnectionResult.SUCCESS) {
+                return@with
+            }
+            if (isUserResolvableError(code)) {
+                getErrorDialog(this@AppActivity, code, 9000)?.show()
+                return
+            }
+            Toast.makeText(this@AppActivity, R.string.google_api_unavailable, Toast.LENGTH_LONG)?.show()
         }
     }
 }
