@@ -2,20 +2,24 @@ package ru.netology.firstask.sharedPreferences
 
 import android.content.Context
 import androidx.work.*
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.netology.firstask.model.AuthState
 import ru.netology.firstask.worker.SendPushTokenWorker
 import java.lang.IllegalStateException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth private constructor(context : Context) {
+@Singleton
+class AppAuth @Inject constructor(@ApplicationContext context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val idKey = "id"
     private val tokenKey = "token"
     private val avatarKey = "avatar"
-    private val _authStateFlow : MutableStateFlow<AuthState>
-    private val workManager : WorkManager =
+    private val _authStateFlow: MutableStateFlow<AuthState>
+    private val workManager: WorkManager =
         WorkManager.getInstance(context)
 
     init {
@@ -35,10 +39,10 @@ class AppAuth private constructor(context : Context) {
 
     }
 
-    val authStateFlow : StateFlow<AuthState> = _authStateFlow.asStateFlow()
+    val authStateFlow: StateFlow<AuthState> = _authStateFlow.asStateFlow()
 
     @Synchronized
-    fun setAuth(id : Long, token : String, avatar : String?) {
+    fun setAuth(id: Long, token: String, avatar: String?) {
         _authStateFlow.value = AuthState(id, token, avatar)
         with(prefs.edit()) {
             putLong(idKey, id)
@@ -59,7 +63,7 @@ class AppAuth private constructor(context : Context) {
         sendPushToken()
     }
 
-    fun sendPushToken (token : String? = null) {
+    fun sendPushToken(token: String? = null) {
         val data = workDataOf(SendPushTokenWorker.TOKEN_KEY to token)
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -75,15 +79,15 @@ class AppAuth private constructor(context : Context) {
 
     companion object {
         @Volatile
-        private var instance : AppAuth? = null
+        private var instance: AppAuth? = null
 
-        private fun buildAuth(context: Context) : AppAuth = AppAuth(context)
+        private fun buildAuth(context: Context): AppAuth = AppAuth(context)
 
         fun initApp(context: Context): AppAuth = instance ?: synchronized(this) {
             instance ?: buildAuth(context).also { instance = it }
         }
 
-        fun getInstance() : AppAuth = synchronized(this) {
+        fun getInstance(): AppAuth = synchronized(this) {
             instance ?: throw IllegalStateException(
                 "AppAuth is not initialized, you must call AppAuth.initApp(Context context) first"
             )

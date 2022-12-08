@@ -6,11 +6,14 @@ import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.Dispatchers
 import ru.netology.firstask.model.AuthState
 import ru.netology.firstask.sharedPreferences.AppAuth
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    val data : LiveData<AuthState> = AppAuth.getInstance()
+class AuthViewModel @Inject constructor(
+    private val appAuth: AppAuth
+) : ViewModel() {
+    val data: LiveData<AuthState> = appAuth
         .authStateFlow
         .asLiveData(Dispatchers.Default)
-    val authenticated : Boolean
-        get() = AppAuth.getInstance().authStateFlow.value.id != 0L
+    val authenticated: Boolean
+        get() = appAuth.authStateFlow.value.id != 0L
 }

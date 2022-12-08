@@ -20,11 +20,15 @@ import com.github.dhaval2404.imagepicker.ImagePicker
 import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.sharedPreferences.AppAuth
 import ru.netology.firstask.util.DraftPostArg
+import javax.inject.Inject
 
 
 class NewPostFragment : Fragment() {
     private var binding : FragmentNewPostBinding? = null
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     private val imageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         when(it.resultCode) {
@@ -130,7 +134,7 @@ class NewPostFragment : Fragment() {
                 viewModel.savePhoto(null, null)
             }
             dialogYes.setOnClickListener{
-                AppAuth.getInstance().removeAuth()
+                appAuth.removeAuth()
                 findNavController().navigateUp()
             }
             dialogCancel.setOnClickListener{

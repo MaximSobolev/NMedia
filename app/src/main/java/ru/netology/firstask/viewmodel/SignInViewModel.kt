@@ -12,19 +12,20 @@ import ru.netology.firstask.error.NetworkError
 import ru.netology.firstask.error.UnknownError
 import ru.netology.firstask.model.State
 import ru.netology.firstask.repository.SignInRepository
-import ru.netology.firstask.repository.SignInRepositoryImpl
 import ru.netology.firstask.sharedPreferences.AppAuth
+import javax.inject.Inject
 
-class SignInViewModel : ViewModel() {
-    private val repository : SignInRepository = SignInRepositoryImpl()
+class SignInViewModel @Inject constructor(
+    private val repository: SignInRepository
+) : ViewModel() {
     private val _state = MutableLiveData<State>()
-    val state : LiveData<State>
+    val state: LiveData<State>
         get() = _state
     private val _errorMessage = MutableLiveData<Int>()
-    val errorMessage : LiveData<Int>
+    val errorMessage: LiveData<Int>
         get() = _errorMessage
 
-    fun signIn(login : String, password : String) {
+    fun signIn(login: String, password: String) {
         _state.postValue(State(loading = true))
         viewModelScope.launch {
             try {
@@ -33,14 +34,14 @@ class SignInViewModel : ViewModel() {
                     AppAuth.getInstance().setAuth(authState.id, authState.token, authState.avatar)
                 }
                 _state.postValue(State(idle = true))
-            } catch (e : AppError) {
+            } catch (e: AppError) {
                 errorProcessing(e)
                 _state.postValue(State(error = true))
             }
         }
     }
 
-    private fun errorProcessing(e : AppError) {
+    private fun errorProcessing(e: AppError) {
         when (e) {
             is ApiError -> {
                 if (e.status == 400) {
