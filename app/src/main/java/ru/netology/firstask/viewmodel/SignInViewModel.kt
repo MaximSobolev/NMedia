@@ -29,7 +29,7 @@ class SignInViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val authState = repository.signIn(login, password)
-                if (authState.id != 0L && authState.token != null && authState.avatar != null) {
+                if (authState.id != 0L && authState.token != null) {
                     AppAuth.getInstance().setAuth(authState.id, authState.token, authState.avatar)
                 }
                 _state.postValue(State(idle = true))

@@ -9,7 +9,7 @@ import java.io.IOException
 class SignInRepositoryImpl : SignInRepository {
     override suspend fun signIn(login: String, pass: String): AuthState {
         try {
-            val response = PostApi.retrofitService.signIn(login, pass)
+            val response = PostApi.userService.signIn(login, pass)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
