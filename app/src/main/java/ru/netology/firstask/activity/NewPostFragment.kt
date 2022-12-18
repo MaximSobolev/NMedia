@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentNewPostBinding
@@ -16,16 +15,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import com.github.dhaval2404.imagepicker.ImagePicker
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.sharedPreferences.AppAuth
 import ru.netology.firstask.util.DraftPostArg
 import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
     private var binding : FragmentNewPostBinding? = null
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by activityViewModels()
 
     @Inject
     lateinit var appAuth: AppAuth

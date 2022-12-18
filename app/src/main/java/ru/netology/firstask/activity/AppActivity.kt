@@ -14,6 +14,7 @@ import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.activity.NewPostFragment.Companion.draftPostArg
 import ru.netology.firstask.dto.DraftPost
@@ -21,6 +22,7 @@ import ru.netology.firstask.sharedPreferences.AppAuth
 import ru.netology.firstask.viewmodel.AuthViewModel
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
 
     @Inject
@@ -33,7 +35,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val viewModel by viewModels<AuthViewModel>()
+        val viewModel : AuthViewModel by viewModels()
         var currentMenuProvider : MenuProvider? = null
         viewModel.data.observe(this) {
             currentMenuProvider?.let(::removeMenuProvider)

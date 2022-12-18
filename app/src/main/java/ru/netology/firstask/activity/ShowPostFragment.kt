@@ -7,11 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentShowPostBinding
 import ru.netology.firstask.dto.Post
@@ -21,9 +22,10 @@ import ru.netology.firstask.viewmodel.PostViewModel
 
 private const val BASE_URL = "http://10.0.2.2:9999"
 
+@AndroidEntryPoint
 class ShowPostFragment : Fragment() {
     private var binding : FragmentShowPostBinding? = null
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by activityViewModels()
     private lateinit var swipeRefreshFragment: SwipeRefreshLayout
 
     override fun onCreateView(

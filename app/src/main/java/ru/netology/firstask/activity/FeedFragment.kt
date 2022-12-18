@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentFeedBinding
 import ru.netology.firstask.dto.DraftPost
@@ -21,11 +22,11 @@ import ru.netology.firstask.util.StringArg
 import ru.netology.firstask.viewmodel.AuthViewModel
 import ru.netology.firstask.viewmodel.PostViewModel
 
-
+@AndroidEntryPoint
 class FeedFragment : Fragment() {
     private var binding : FragmentFeedBinding? = null
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
-    private val authViewModel: AuthViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by activityViewModels()
+    private val authViewModel: AuthViewModel by activityViewModels()
     private lateinit var adapter: PostAdapter
     private lateinit var swipeRefreshFragment : SwipeRefreshLayout
     private var newPost = false
