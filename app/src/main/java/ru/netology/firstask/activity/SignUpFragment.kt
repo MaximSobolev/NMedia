@@ -14,14 +14,16 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentSignUpBinding
 import ru.netology.firstask.util.AndroidUtils
 import ru.netology.firstask.viewmodel.SignUpViewModel
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
     private var binding: FragmentSignUpBinding? = null
-    private val signUpViewModel : SignUpViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val signUpViewModel : SignUpViewModel by viewModels()
 
     private val imageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         when (it.resultCode) {

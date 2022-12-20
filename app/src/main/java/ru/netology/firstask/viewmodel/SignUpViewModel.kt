@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.error.ApiError
@@ -17,24 +18,27 @@ import ru.netology.firstask.repository.SignUpRepository
 import ru.netology.firstask.repository.SignUpRepositoryImpl
 import ru.netology.firstask.sharedPreferences.AppAuth
 import java.io.File
+import javax.inject.Inject
 
-class SignUpViewModel : ViewModel() {
-    private val repository : SignUpRepository = SignUpRepositoryImpl()
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val repository: SignUpRepository
+) : ViewModel() {
     private val _photo = MutableLiveData<PhotoModel?>(null)
-    val photo : LiveData<PhotoModel?>
+    val photo: LiveData<PhotoModel?>
         get() = _photo
     private val _state = MutableLiveData<State>()
-    val state : LiveData<State>
+    val state: LiveData<State>
         get() = _state
     private val _errorMessage = MutableLiveData<Int>()
-    val errorMessage : LiveData<Int>
+    val errorMessage: LiveData<Int>
         get() = _errorMessage
 
-    fun savePhoto(uri : Uri?, file : File?) {
+    fun savePhoto(uri: Uri?, file: File?) {
         _photo.postValue(PhotoModel(uri, file))
     }
 
-    fun signUp(name : String, login : String, pass : String) {
+    fun signUp(name: String, login: String, pass: String) {
         _state.postValue(State(loading = true))
         viewModelScope.launch {
             try {
@@ -46,14 +50,14 @@ class SignUpViewModel : ViewModel() {
                 }
                 _state.postValue(State(idle = true))
                 _photo.postValue(null)
-            } catch (e : AppError) {
+            } catch (e: AppError) {
                 errorProcessing(e)
                 _state.postValue(State(error = true))
             }
         }
     }
 
-    private fun errorProcessing(e : AppError) {
+    private fun errorProcessing(e: AppError) {
         when (e) {
             is ApiError -> {
                 _errorMessage.postValue(R.string.retry_text)

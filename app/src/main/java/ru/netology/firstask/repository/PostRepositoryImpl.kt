@@ -8,7 +8,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.firstask.attachment.AttachmentEmbeddable
 import ru.netology.firstask.attachment.AttachmentType
 import ru.netology.firstask.dto.Post
-import ru.netology.firstask.retrofit.PostApi
 import ru.netology.firstask.dao.PostDao
 import ru.netology.firstask.dto.Media
 import ru.netology.firstask.entity.PostEntity
@@ -16,19 +15,23 @@ import ru.netology.firstask.entity.toDto
 import ru.netology.firstask.entity.toEntity
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.PhotoModel
+import ru.netology.firstask.retrofit.PostApiService
 import java.io.IOException
 import java.util.concurrent.CancellationException
+import javax.inject.Inject
 import kotlin.Exception
 
-class PostRepositoryImpl(
-    private val dao : PostDao): PostRepository {
+class PostRepositoryImpl @Inject constructor(
+    private val dao : PostDao,
+    private val postApiService: PostApiService
+    ): PostRepository {
     override val data : Flow<List<Post>> = dao.getAll()
         .map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)
 
     override suspend fun getAllAsync() {
         try {
-            val response = PostApi.retrofitService.getAll()
+            val response = postApiService.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -48,7 +51,7 @@ class PostRepositoryImpl(
         while (true) {
             try {
                 delay(10_000)
-                val response = PostApi.retrofitService.getNewer(id)
+                val response = postApiService.getNewer(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -73,9 +76,9 @@ class PostRepositoryImpl(
         dao.likeById(post.id)
         try {
             val response = if (post.likedByMe) {
-                PostApi.retrofitService.dislikeById(post.id)
+                postApiService.dislikeById(post.id)
             } else {
-                PostApi.retrofitService.likeById(post.id)
+                postApiService.likeById(post.id)
             }
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
@@ -93,7 +96,7 @@ class PostRepositoryImpl(
     override suspend fun removeByIdAsync(id: Long) {
         dao.removeById(id)
         try {
-            val response = PostApi.retrofitService.removeById(id)
+            val response = postApiService.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -107,7 +110,7 @@ class PostRepositoryImpl(
     override suspend fun saveAsync(post: Post) {
            dao.save(PostEntity.fromDto(post).copy(uploadedOnServer = false, displayOnScreen = true))
         try {
-            val response = PostApi.retrofitService.save(post)
+            val response = postApiService.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -126,7 +129,7 @@ class PostRepositoryImpl(
             dao.save(PostEntity.fromDto(
                 post.copy(attachment = AttachmentEmbeddable(url = media.id, type = AttachmentType.IMAGE),
                     uploadedOnServer = false, displayOnScreen = true)))
-            val response = PostApi.retrofitService.save(
+            val response = postApiService.save(
                 post.copy(attachment = AttachmentEmbeddable(url = media.id, type = AttachmentType.IMAGE)))
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
@@ -142,7 +145,7 @@ class PostRepositoryImpl(
 
     private suspend fun upload (photoModel: PhotoModel) : Media {
         try {
-            val response = PostApi.retrofitService.upload(
+            val response = postApiService.upload(
                 MultipartBody.Part.createFormData(
                     "file",
                     photoModel.file?.name,

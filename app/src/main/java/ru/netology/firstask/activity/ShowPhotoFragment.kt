@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.BuildConfig
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentShowPhotoBinding
@@ -15,6 +16,7 @@ import ru.netology.firstask.util.StringArg
 
 private const val BASE_URL = BuildConfig.BASE_URL
 
+@AndroidEntryPoint
 class ShowPhotoFragment : Fragment() {
     private var binding : FragmentShowPhotoBinding? = null
 

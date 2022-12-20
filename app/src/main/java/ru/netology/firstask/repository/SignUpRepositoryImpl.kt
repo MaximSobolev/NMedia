@@ -8,22 +8,25 @@ import ru.netology.firstask.error.ApiError
 import ru.netology.firstask.error.NetworkError
 import ru.netology.firstask.model.AuthState
 import ru.netology.firstask.model.PhotoModel
-import ru.netology.firstask.retrofit.PostApi
+import ru.netology.firstask.retrofit.UserApiService
 import java.io.IOException
+import javax.inject.Inject
 
-class SignUpRepositoryImpl : SignUpRepository {
+class SignUpRepositoryImpl @Inject constructor(
+    private val userService: UserApiService
+) : SignUpRepository {
     override suspend fun signUp(name: String, login: String, pass: String): AuthState {
         try {
-            val response = PostApi.userService.signUp(login, pass, name)
+            val response = userService.signUp(login, pass, name)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             return response.body() ?: throw ApiError(response.code(), response.message())
-        } catch (e : ApiError) {
+        } catch (e: ApiError) {
             throw ApiError(e.status, e.code)
-        } catch (e : IOException) {
+        } catch (e: IOException) {
             throw NetworkError()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             throw UnknownError()
         }
     }
@@ -35,7 +38,7 @@ class SignUpRepositoryImpl : SignUpRepository {
         photoModel: PhotoModel
     ): AuthState {
         try {
-            val response = PostApi.userService.signUpWithAvatar(
+            val response = userService.signUpWithAvatar(
                 login.toRequestBody("text/plain".toMediaType()),
                 pass.toRequestBody("text/plain".toMediaType()),
                 name.toRequestBody("text/plain".toMediaType()),
@@ -49,11 +52,11 @@ class SignUpRepositoryImpl : SignUpRepository {
                 throw ApiError(response.code(), response.message())
             }
             return response.body() ?: throw ApiError(response.code(), response.message())
-        } catch (e : ApiError) {
+        } catch (e: ApiError) {
             throw ApiError(e.status, e.code)
-        } catch (e : IOException) {
+        } catch (e: IOException) {
             throw NetworkError()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             throw UnknownError()
         }
     }

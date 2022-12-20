@@ -10,14 +10,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentSignInBinding
 import ru.netology.firstask.util.AndroidUtils
 import ru.netology.firstask.viewmodel.SignInViewModel
 
+@AndroidEntryPoint
 class SignInFragment : Fragment() {
     private var binding: FragmentSignInBinding? = null
-    private val signInViewModel : SignInViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val signInViewModel : SignInViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

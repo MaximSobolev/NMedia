@@ -13,18 +13,29 @@ import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.activity.NewPostFragment.Companion.draftPostArg
 import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.sharedPreferences.AppAuth
 import ru.netology.firstask.viewmodel.AuthViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
+
+    @Inject
+    lateinit var appAuth: AppAuth
+    @Inject
+    lateinit var messaging: FirebaseMessaging
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val viewModel by viewModels<AuthViewModel>()
+        val viewModel : AuthViewModel by viewModels()
         var currentMenuProvider : MenuProvider? = null
         viewModel.data.observe(this) {
             currentMenuProvider?.let(::removeMenuProvider)
@@ -52,7 +63,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                                 findViewById<View>(R.id.dialogWindow).visibility = View.VISIBLE
                                 true
                             } else {
-                                AppAuth.getInstance().removeAuth()
+                                appAuth.removeAuth()
                                 true
                             }
                         }
@@ -80,11 +91,22 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
                 }
             )
         }
+
+        messaging.token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
         checkGoogleApiAvailability()
     }
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
+        with(googleApiAvailability) {
             val code = isGooglePlayServicesAvailable(this@AppActivity)
             if (code == ConnectionResult.SUCCESS) {
                 return@with
