@@ -26,6 +26,8 @@ class SignInViewModel @Inject constructor(
     private val _errorMessage = MutableLiveData<Int>()
     val errorMessage: LiveData<Int>
         get() = _errorMessage
+    @Inject
+    lateinit var appAuth: AppAuth
 
     fun signIn(login: String, password: String) {
         _state.postValue(State(loading = true))
@@ -33,7 +35,7 @@ class SignInViewModel @Inject constructor(
             try {
                 val authState = repository.signIn(login, password)
                 if (authState.id != 0L && authState.token != null) {
-                    AppAuth.getInstance().setAuth(authState.id, authState.token, authState.avatar)
+                    appAuth.setAuth(authState.id, authState.token, authState.avatar)
                 }
                 _state.postValue(State(idle = true))
             } catch (e: AppError) {

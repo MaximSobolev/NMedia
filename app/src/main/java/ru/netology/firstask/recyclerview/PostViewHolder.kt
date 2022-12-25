@@ -77,11 +77,11 @@ class PostViewHolder(
 
     fun bind(post: Post) {
         binding.apply {
-                if (post.displayOnScreen) {
-                    cardPostContainer.visibility = View.VISIBLE
-                } else {
-                    cardPostContainer.visibility = View.GONE
-                }
+//                if (post.displayOnScreen) {
+//                    cardPostContainer.visibility = View.VISIBLE
+//                } else {
+//                    cardPostContainer.visibility = View.GONE
+//                }
                 author.text = post.author
                 Glide.with(avatar)
                     .load("${BASE_URL}/avatars/${post.authorAvatar}")

@@ -6,10 +6,13 @@ import android.view.*
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentFeedBinding
 import ru.netology.firstask.dto.DraftPost
@@ -29,8 +32,8 @@ class FeedFragment : Fragment() {
     private val authViewModel: AuthViewModel by activityViewModels()
     private lateinit var adapter: PostAdapter
     private lateinit var swipeRefreshFragment : SwipeRefreshLayout
-    private var newPost = false
-    private var displayOnScreen : Boolean = false
+//    private var newPost = false
+//    private var displayOnScreen : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -121,19 +124,35 @@ class FeedFragment : Fragment() {
 
 
     private fun setupObserve() {
-        viewModel.data.observe(viewLifecycleOwner) { data ->
-            newPost = data.posts.size > adapter.itemCount
-            displayOnScreen = data.posts.firstOrNull()?.displayOnScreen ?: false
-            adapter.submitList(data.posts) {
-                when (displayOnScreen && newPost) {
-                    true -> {binding?.list?.scrollToPosition(0)}
-                    false -> { }
-                }
-            }
-            binding?.apply {
-                emptyText.isVisible = data.empty
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest { state ->
+                adapter.submitData(state)
             }
         }
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest {
+                binding?.swiperefresh?.isRefreshing = it.refresh is LoadState.Loading
+                        || it.append is LoadState.Loading
+                        || it.prepend is LoadState.Loading
+            }
+        }
+
+        viewModel.authState.observe(viewLifecycleOwner) {
+            adapter.refresh()
+        }
+//        viewModel.data.observe(viewLifecycleOwner) { data ->
+//            newPost = data.posts.size > adapter.itemCount
+//            displayOnScreen = data.posts.firstOrNull()?.displayOnScreen ?: false
+//            adapter.submitList(data.posts) {
+//                when (displayOnScreen && newPost) {
+//                    true -> {binding?.list?.scrollToPosition(0)}
+//                    false -> { }
+//                }
+//            }
+//            binding?.apply {
+//                emptyText.isVisible = data.empty
+//            }
+//        }
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding?.apply {
                 progressBar.isVisible = state.loading
@@ -153,13 +172,13 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
-        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
-            binding?.apply {
-                if (count != 0) {
-                    newerPosts.visibility = View.VISIBLE
-                }
-            }
-        }
+//        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
+//            binding?.apply {
+//                if (count != 0) {
+//                    newerPosts.visibility = View.VISIBLE
+//                }
+//            }
+//        }
     }
 
     private fun setupListeners() {
@@ -187,7 +206,7 @@ class FeedFragment : Fragment() {
                 binding?.list?.scrollToPosition(0)
             }
             swipeRefreshFragment.setOnRefreshListener {
-                viewModel.refreshPosts()
+                adapter.refresh()
             }
             dialogCancel.setOnClickListener{
                 dialogWindow.visibility = View.GONE

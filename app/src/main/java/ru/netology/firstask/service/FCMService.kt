@@ -12,6 +12,7 @@ import com.google.gson.Gson
 import ru.netology.firstask.R
 import ru.netology.firstask.dto.PushMessage
 import ru.netology.firstask.sharedPreferences.AppAuth
+import javax.inject.Inject
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -19,6 +20,8 @@ class FCMService : FirebaseMessagingService() {
     private var recipientMassage : PushMessage? = null
     private val channelId = "remote"
     private val gson = Gson()
+    @Inject
+    lateinit var appAuth : AppAuth
 
     override fun onCreate() {
         super.onCreate()
@@ -38,18 +41,18 @@ class FCMService : FirebaseMessagingService() {
         message.data[content]?.let {
             recipientMassage = gson.fromJson(message.data[content], PushMessage::class.java)
             when (recipientMassage?.recipientId) {
-                null, AppAuth.getInstance().authStateFlow.value.id -> {
+                null, appAuth.authStateFlow.value.id -> {
                     sendNotification(recipientMassage?.content)
                 }
                 else -> {
-                    AppAuth.getInstance().sendPushToken()
+                    appAuth.sendPushToken()
                 }
             }
         }
     }
 
     override fun onNewToken(token: String) {
-        AppAuth.getInstance().sendPushToken(token)
+        appAuth.sendPushToken(token)
     }
 
     private fun sendNotification(content : String?) {
