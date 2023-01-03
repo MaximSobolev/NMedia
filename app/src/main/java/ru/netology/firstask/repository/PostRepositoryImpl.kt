@@ -1,5 +1,7 @@
 package ru.netology.firstask.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -11,7 +13,6 @@ import ru.netology.firstask.dto.Post
 import ru.netology.firstask.dao.PostDao
 import ru.netology.firstask.dto.Media
 import ru.netology.firstask.entity.PostEntity
-import ru.netology.firstask.entity.toDto
 import ru.netology.firstask.entity.toEntity
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.PhotoModel
@@ -25,9 +26,16 @@ class PostRepositoryImpl @Inject constructor(
     private val dao : PostDao,
     private val postApiService: PostApiService
     ): PostRepository {
-    override val data : Flow<List<Post>> = dao.getAll()
-        .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
+//    override val data : Flow<List<Post>> = dao.getAll()
+//        .map(List<PostEntity>::toDto)
+//        .flowOn(Dispatchers.Default)
+
+    override val data = Pager(
+        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = {
+            PostPagingSource(postApiService)
+        }
+    ).flow
 
     override suspend fun getAllAsync() {
         try {

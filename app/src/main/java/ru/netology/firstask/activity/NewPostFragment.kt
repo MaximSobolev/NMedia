@@ -1,5 +1,6 @@
 package ru.netology.firstask.activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
@@ -60,6 +61,7 @@ class NewPostFragment : Fragment() {
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,
             object : OnBackPressedCallback(true){
+                @SuppressLint("SuspiciousIndentation")
                 override fun handleOnBackPressed() {
                     binding?.apply {
                         if (addContent.text.isNotBlank())

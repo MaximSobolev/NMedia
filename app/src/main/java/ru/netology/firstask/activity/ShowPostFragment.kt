@@ -8,11 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingData
+import androidx.paging.map
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.firstask.R
 import ru.netology.firstask.databinding.FragmentShowPostBinding
 import ru.netology.firstask.dto.Post
@@ -87,9 +91,11 @@ class ShowPostFragment : Fragment() {
     }
 
     private fun setupObserve() {
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            arguments?.postArg?.let { postArg ->
-                updatePost(state.posts, postArg)
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest { state ->
+                arguments?.postArg?.let { postArg ->
+                    updatePost(state, postArg)
+                }
             }
         }
 
@@ -165,10 +171,10 @@ class ShowPostFragment : Fragment() {
         }
     }
 
-    private fun updatePost(posts : List<Post>?, oldPost : Post?) {
-        val post = posts?.find {
-            oldPost?.id == it.id
-        }
+    private fun updatePost(state : PagingData<Post>?, oldPost : Post?) {
+        val posts = ArrayList<Post>()
+        state?.map { posts.add(it) }
+        val post = posts.find { it.id == oldPost?.id }
         post?.let {
             binding?.apply {
                 content.text = post.content

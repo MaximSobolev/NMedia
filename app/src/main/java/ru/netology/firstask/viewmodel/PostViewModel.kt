@@ -2,18 +2,20 @@ package ru.netology.firstask.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.*
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+//import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.error.*
-import ru.netology.firstask.model.FeedModel
 import ru.netology.firstask.model.FeedModelState
 import ru.netology.firstask.error.OperationType
+import ru.netology.firstask.model.AuthState
 import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.sharedPreferences.AppAuth
@@ -36,26 +38,24 @@ class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     appAuth: AppAuth
 ) : ViewModel() {
-
+    private val cashed = repository.data.cachedIn(viewModelScope)
 
     @kotlinx.coroutines.ExperimentalCoroutinesApi
-    val data: LiveData<FeedModel> = appAuth
+    val data: Flow<PagingData<Post>> = appAuth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
-            repository.data
-                .map { posts ->
-                    FeedModel(
-                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
-                        posts.isEmpty()
-                    )
-                }
-        }.asLiveData(Dispatchers.Default)
+            cashed.map { posts ->
+                posts.map { it.copy(ownedByMe = it.authorId == myId) }
+            }
+        }
 
-    @kotlinx.coroutines.ExperimentalCoroutinesApi
-    val newerCount: LiveData<Int> = data.switchMap {
-        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
-            .asLiveData(Dispatchers.Default)
-    }
+    val authState : LiveData<AuthState> = appAuth.authStateFlow.asLiveData()
+
+//    @kotlinx.coroutines.ExperimentalCoroutinesApi
+//    val newerCount: LiveData<Int> = data.flatMapLatest { posts ->
+//        val maxId = maxId(posts)
+//        repository.getNewerCount(maxId)
+//    }.asLiveData(Dispatchers.Default)
 
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
@@ -70,7 +70,6 @@ class PostViewModel @Inject constructor(
     private val _photo = MutableLiveData<PhotoModel?>(null)
     val photo: LiveData<PhotoModel?>
         get() = _photo
-
 
     init {
         loadPosts()
@@ -110,7 +109,7 @@ class PostViewModel @Inject constructor(
         viewModelScope.launch {
             _dataState.value = FeedModelState(loading = true)
             try {
-                repository.getAllAsync()
+//                repository.getAllAsync()
                 _dataState.value = FeedModelState(idle = true)
             } catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
@@ -122,7 +121,7 @@ class PostViewModel @Inject constructor(
         viewModelScope.launch {
             _dataState.value = FeedModelState(refreshing = true)
             try {
-                repository.getAllAsync()
+//                repository.getAllAsync()
                 _dataState.value = FeedModelState(idle = true)
             } catch (e: Exception) {
                 _dataState.value = FeedModelState(error = true)
@@ -255,4 +254,15 @@ class PostViewModel @Inject constructor(
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.postValue(PhotoModel(uri, file))
     }
+
+//    fun maxId(posts : PagingData<Post>) : Long {
+//        var maxId : Long = 0
+//        posts.map {
+//            if (it.id > maxId) {
+//                maxId = it.id
+//                it
+//            } else it
+//        }
+//        return maxId
+//    }
 }
