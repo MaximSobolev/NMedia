@@ -7,12 +7,9 @@ import ru.netology.firstask.model.PhotoModel
 
 interface PostRepository {
     val data : Flow<PagingData<Post>>
-    suspend fun getAllAsync()
-    fun getNewerCount(id : Long) : Flow<Int>
     suspend fun likeByIdAsync(post: Post)
     suspend fun shareByIdAsync(id: Long)
     suspend fun removeByIdAsync(id: Long)
     suspend fun saveAsync(post: Post)
     suspend fun saveWithAttachments(post: Post, photoModel: PhotoModel)
-    suspend fun displayNewerPosts()
 }

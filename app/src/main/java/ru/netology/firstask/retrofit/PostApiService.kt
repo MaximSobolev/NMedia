@@ -7,8 +7,6 @@ import ru.netology.firstask.dto.Media
 import ru.netology.firstask.dto.Post
 
 interface PostApiService {
-    @GET("posts")
-    suspend fun getAll(): Response<List<Post>>
 
     @GET("posts/latest")
     suspend fun getLatest(@Query("count") count : Int): Response<List<Post>>
@@ -24,9 +22,6 @@ interface PostApiService {
 
     @DELETE("posts/{id}/likes")
     suspend fun dislikeById(@Path("id") id : Long) : Response<Post>
-
-    @GET("posts/{id}/newer")
-    suspend fun getNewer(@Path("id") id: Long) : Response<List<Post>>
 
     @GET("posts/{id}/before")
     suspend fun getBefore(@Path("id") id: Long, @Query("count") count : Int) : Response<List<Post>>

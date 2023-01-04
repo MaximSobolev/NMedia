@@ -9,12 +9,14 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.firstask.R
 import ru.netology.firstask.dto.PushMessage
 import ru.netology.firstask.sharedPreferences.AppAuth
 import javax.inject.Inject
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
     private val content = "content"
     private var recipientMassage : PushMessage? = null

@@ -4,7 +4,6 @@ import ru.netology.firstask.attachment.AttachmentEmbeddable
 import java.io.Serializable
 
 data class Post (
-    val localId : Long,
     val id : Long = 0,
     val authorId : Long = 0,
     val author : String = "",

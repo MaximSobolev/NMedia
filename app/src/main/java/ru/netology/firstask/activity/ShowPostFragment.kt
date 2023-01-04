@@ -90,6 +90,7 @@ class ShowPostFragment : Fragment() {
         }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun setupObserve() {
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest { state ->
@@ -103,10 +104,9 @@ class ShowPostFragment : Fragment() {
             binding?.apply {
                 if (state.error) {
                     Snackbar.make(root, R.string.retry_text, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.retry) { viewModel.loadPosts() }
+                        .setAction(R.string.retry) { findNavController().navigateUp() }
                         .show()
                 }
-                swipeRefreshFragment.isRefreshing = state.refreshing
             }
         }
 
@@ -165,9 +165,6 @@ class ShowPostFragment : Fragment() {
                 }
 
             }
-        }
-        swipeRefreshFragment.setOnRefreshListener {
-            viewModel.refreshPosts()
         }
     }
 

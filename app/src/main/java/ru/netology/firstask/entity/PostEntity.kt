@@ -8,8 +8,7 @@ import ru.netology.firstask.dto.Post
 
 @Entity
 data class PostEntity (
-    @PrimaryKey(autoGenerate = true)
-    val localId : Long,
+    @PrimaryKey
     val id : Long,
     val authorId : Long,
     val author : String,
@@ -25,11 +24,11 @@ data class PostEntity (
     val uploadedOnServer: Boolean = false,
     val displayOnScreen : Boolean = true
 ) {
-    fun toDto() = Post(localId, id, authorId, author, authorAvatar, content, published, likes, share, view,
+    fun toDto() = Post(id, authorId, author, authorAvatar, content, published, likes, share, view,
         likedByMe, attachment, uploadedOnServer, displayOnScreen)
 
     companion object {
-        fun fromDto(post : Post) = PostEntity(post.localId, post.id, post.authorId, post.author, post.authorAvatar,
+        fun fromDto(post : Post) = PostEntity(post.id, post.authorId, post.author, post.authorAvatar,
             post.content, post.published, post.likes, post.share, post.view, post.likedByMe, post.attachment,
             post.uploadedOnServer, post.displayOnScreen)
     }
