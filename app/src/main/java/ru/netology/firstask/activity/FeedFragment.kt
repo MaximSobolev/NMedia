@@ -18,6 +18,7 @@ import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.recyclerview.OnInteractionListener
 import ru.netology.firstask.recyclerview.PostAdapter
+import ru.netology.firstask.recyclerview.PostLoadingStateAdapter
 import ru.netology.firstask.util.DraftPostArg
 import ru.netology.firstask.util.PostArg
 import ru.netology.firstask.util.StringArg
@@ -110,7 +111,10 @@ class FeedFragment : Fragment() {
                 }
 
             })
-        binding?.list?.adapter = adapter
+        binding?.list?.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter{ adapter.retry() },
+            footer = PostLoadingStateAdapter{ adapter.retry() }
+        )
     }
 
     private fun initSwipeRefresh() {
@@ -129,7 +133,6 @@ class FeedFragment : Fragment() {
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest {
                 binding?.swiperefresh?.isRefreshing = it.refresh is LoadState.Loading
-                        || it.append is LoadState.Loading
             }
         }
 

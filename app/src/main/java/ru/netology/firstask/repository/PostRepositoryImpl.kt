@@ -10,6 +10,8 @@ import ru.netology.firstask.dto.Post
 import ru.netology.firstask.dao.PostDao
 import ru.netology.firstask.dao.PostRemoteKeyDao
 import ru.netology.firstask.db.AppDb
+import ru.netology.firstask.dto.Ad
+import ru.netology.firstask.dto.FeedItem
 import ru.netology.firstask.dto.Media
 import ru.netology.firstask.entity.PostEntity
 import ru.netology.firstask.error.*
@@ -18,6 +20,7 @@ import ru.netology.firstask.retrofit.PostApiService
 import java.io.IOException
 import javax.inject.Inject
 import kotlin.Exception
+import kotlin.random.Random
 
 class PostRepositoryImpl @Inject constructor(
     private val dao : PostDao,
@@ -27,12 +30,19 @@ class PostRepositoryImpl @Inject constructor(
     ): PostRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override val data : Flow<PagingData<Post>> = Pager(
+    override val data : Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
         remoteMediator = PostRemoteMediator(postApiService, dao, postRemoteKeyDao, appDb),
         pagingSourceFactory = dao::pagingSource,
     ).flow.map { pagingData ->
         pagingData.map(PostEntity::toDto)
+            .insertSeparators { prev, _  ->
+                if (prev?.id?.rem(10) == 0L) {
+                    Ad(Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
+            }
     }
 
 
@@ -125,6 +135,11 @@ class PostRepositoryImpl @Inject constructor(
         } catch (e : Exception) {
             throw UnknownError()
         }
+    }
+
+    override suspend fun findPostById(id: Long): Post? {
+        val post = dao.findPostById(id) ?: return null
+        return post.toDto()
     }
 
 }
