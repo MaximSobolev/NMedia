@@ -10,6 +10,7 @@
     <dimen name="eight_dp">64dp</dimen>
     <dimen name="ninth_dp">72dp</dimen>
     <dimen name="tenth_dp">80dp</dimen>
+    <dimen name="two_hundred_dp">200dp</dimen>
     <dimen name="two_hundred_seventy_dp">270dp</dimen>
     <dimen name="third_sp">24sp</dimen>\
     <dimen name="second_sp">16sp</dimen>

@@ -15,7 +15,6 @@ import ru.netology.firstask.error.UnknownError
 import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.model.State
 import ru.netology.firstask.repository.SignUpRepository
-import ru.netology.firstask.repository.SignUpRepositoryImpl
 import ru.netology.firstask.sharedPreferences.AppAuth
 import java.io.File
 import javax.inject.Inject

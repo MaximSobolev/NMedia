@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -23,11 +24,20 @@ class ApiModule {
         private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
     }
 
+    @Provides
+    @Singleton
+    fun provideLogging() : HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+        if (BuildConfig.DEBUG) {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
     @Singleton
     @Provides
     fun provideOkHttp(
-        appAuth: AppAuth
+        appAuth: AppAuth,
+        logging : HttpLoggingInterceptor
     ) : OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(logging)
         .addInterceptor { chain ->
             appAuth.authStateFlow.value.token?.let { token ->
                 val newRequest = chain.request().newBuilder()

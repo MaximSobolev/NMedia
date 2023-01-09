@@ -4,13 +4,13 @@ import android.net.Uri
 import androidx.lifecycle.*
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-//import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.dto.DraftPost
+import ru.netology.firstask.dto.FeedItem
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.FeedModelState
@@ -20,42 +20,29 @@ import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.repository.PostRepository
 import ru.netology.firstask.sharedPreferences.AppAuth
 import java.io.File
-import java.lang.Exception
 import javax.inject.Inject
 import kotlin.math.floor
 
 private val empty = Post(
-    localId = 0,
     id = 0,
     author = "Me",
     authorAvatar = "",
     content = "",
     published = ""
 )
-
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
     appAuth: AppAuth
 ) : ViewModel() {
-    private val cashed = repository.data.cachedIn(viewModelScope)
+    private val cached = repository.data.cachedIn(viewModelScope)
 
-    @kotlinx.coroutines.ExperimentalCoroutinesApi
-    val data: Flow<PagingData<Post>> = appAuth
+    val data: Flow<PagingData<FeedItem>> = appAuth
         .authStateFlow
-        .flatMapLatest { (myId, _) ->
-            cashed.map { posts ->
-                posts.map { it.copy(ownedByMe = it.authorId == myId) }
-            }
-        }
+        .flatMapLatest { cached }
 
     val authState : LiveData<AuthState> = appAuth.authStateFlow.asLiveData()
-
-//    @kotlinx.coroutines.ExperimentalCoroutinesApi
-//    val newerCount: LiveData<Int> = data.flatMapLatest { posts ->
-//        val maxId = maxId(posts)
-//        repository.getNewerCount(maxId)
-//    }.asLiveData(Dispatchers.Default)
 
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
@@ -71,9 +58,9 @@ class PostViewModel @Inject constructor(
     val photo: LiveData<PhotoModel?>
         get() = _photo
 
-    init {
-        loadPosts()
-    }
+    private val _changePost = MutableLiveData<Post?>(null)
+    val changePost: LiveData<Post?>
+        get() = _changePost
 
     fun likeById(post: Post) {
         viewModelScope.launch {
@@ -105,29 +92,6 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun loadPosts() {
-        viewModelScope.launch {
-            _dataState.value = FeedModelState(loading = true)
-            try {
-//                repository.getAllAsync()
-                _dataState.value = FeedModelState(idle = true)
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
-            }
-        }
-    }
-
-    fun refreshPosts() {
-        viewModelScope.launch {
-            _dataState.value = FeedModelState(refreshing = true)
-            try {
-//                repository.getAllAsync()
-                _dataState.value = FeedModelState(idle = true)
-            } catch (e: Exception) {
-                _dataState.value = FeedModelState(error = true)
-            }
-        }
-    }
 
     fun save() {
         viewModelScope.launch {
@@ -245,24 +209,15 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    fun displayNewerPosts() {
-        viewModelScope.launch {
-            repository.displayNewerPosts()
-        }
-    }
-
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.postValue(PhotoModel(uri, file))
     }
 
-//    fun maxId(posts : PagingData<Post>) : Long {
-//        var maxId : Long = 0
-//        posts.map {
-//            if (it.id > maxId) {
-//                maxId = it.id
-//                it
-//            } else it
-//        }
-//        return maxId
-//    }
+    fun findPostById(id: Long) {
+        viewModelScope.launch {
+            val post = repository.findPostById(id)
+            _changePost.postValue(post)
+        }
+    }
+
 }

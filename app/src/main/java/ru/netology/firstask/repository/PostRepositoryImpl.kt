@@ -1,9 +1,6 @@
 package ru.netology.firstask.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import androidx.paging.*
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -11,73 +8,42 @@ import ru.netology.firstask.attachment.AttachmentEmbeddable
 import ru.netology.firstask.attachment.AttachmentType
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.dao.PostDao
+import ru.netology.firstask.dao.PostRemoteKeyDao
+import ru.netology.firstask.db.AppDb
+import ru.netology.firstask.dto.Ad
+import ru.netology.firstask.dto.FeedItem
 import ru.netology.firstask.dto.Media
 import ru.netology.firstask.entity.PostEntity
-import ru.netology.firstask.entity.toEntity
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.PhotoModel
 import ru.netology.firstask.retrofit.PostApiService
 import java.io.IOException
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import kotlin.Exception
+import kotlin.random.Random
 
 class PostRepositoryImpl @Inject constructor(
     private val dao : PostDao,
+    appDb: AppDb,
+    postRemoteKeyDao: PostRemoteKeyDao,
     private val postApiService: PostApiService
     ): PostRepository {
-//    override val data : Flow<List<Post>> = dao.getAll()
-//        .map(List<PostEntity>::toDto)
-//        .flowOn(Dispatchers.Default)
 
-    override val data = Pager(
+    @OptIn(ExperimentalPagingApi::class)
+    override val data : Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-        pagingSourceFactory = {
-            PostPagingSource(postApiService)
-        }
-    ).flow
-
-    override suspend fun getAllAsync() {
-        try {
-            val response = postApiService.getAll()
-            if (!response.isSuccessful) {
-                throw ApiError(response.code(), response.message())
+        remoteMediator = PostRemoteMediator(postApiService, dao, postRemoteKeyDao, appDb),
+        pagingSourceFactory = dao::pagingSource,
+    ).flow.map { pagingData ->
+        pagingData.map(PostEntity::toDto)
+            .insertSeparators { prev, _  ->
+                if (prev?.id?.rem(10) == 0L) {
+                    Ad(Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
             }
-            val body = response.body() ?: throw ApiError(response.code(), response.message())
-            val posts = body.map {
-                it.copy(localId = it.id, uploadedOnServer = true, displayOnScreen = true)
-            }
-            dao.insert(posts.toEntity())
-        } catch (e : IOException) {
-            throw NetworkError()
-        } catch (e : Exception) {
-            throw UnknownError()
-        }
     }
-
-    override fun getNewerCount(id : Long): Flow<Int> = flow {
-        while (true) {
-            try {
-                delay(10_000)
-                val response = postApiService.getNewer(id)
-                if (!response.isSuccessful) {
-                    throw ApiError(response.code(), response.message())
-                }
-                var body = response.body() ?: throw ApiError(response.code(), response.message())
-                body = body.map {
-                    it.copy(localId = it.id, displayOnScreen = false, uploadedOnServer = true)
-                }
-                dao.insert(body.toEntity())
-                emit(body.size)
-            } catch (e : CancellationException) {
-                throw e
-            } catch (e : IOException) {
-                throw NetworkError()
-            } catch (e : Exception) {
-                throw UnknownError()
-            }
-        }
-    }.flowOn(Dispatchers.Default)
 
 
     override suspend fun likeByIdAsync(post: Post) {
@@ -123,7 +89,7 @@ class PostRepositoryImpl @Inject constructor(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true, displayOnScreen = true))
+            dao.insert(PostEntity.fromDto(body).copy(uploadedOnServer = true, displayOnScreen = true))
         } catch (e : IOException) {
             throw NetworkError()
         } catch (e : Exception) {
@@ -143,7 +109,7 @@ class PostRepositoryImpl @Inject constructor(
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body).copy(localId = body.id, uploadedOnServer = true, displayOnScreen = true))
+            dao.insert(PostEntity.fromDto(body).copy(uploadedOnServer = true, displayOnScreen = true))
         } catch (e : IOException) {
             throw NetworkError()
         } catch (e : Exception) {
@@ -171,8 +137,9 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun displayNewerPosts() {
-        dao.displayPosts()
+    override suspend fun findPostById(id: Long): Post? {
+        val post = dao.findPostById(id) ?: return null
+        return post.toDto()
     }
 
 }

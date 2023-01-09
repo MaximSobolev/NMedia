@@ -3,12 +3,10 @@ package ru.netology.firstask.sharedPreferences
 import android.content.Context
 import androidx.work.*
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.netology.firstask.model.AuthState
-import ru.netology.firstask.retrofit.PostApiService
 import ru.netology.firstask.worker.SendPushTokenWorker
 import java.lang.IllegalStateException
 import javax.inject.Inject

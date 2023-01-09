@@ -10,9 +10,6 @@ import android.widget.PopupMenu
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.paging.PagingData
-import androidx.paging.map
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +27,6 @@ private const val BASE_URL = "http://10.0.2.2:9999"
 class ShowPostFragment : Fragment() {
     private var binding : FragmentShowPostBinding? = null
     private val viewModel: PostViewModel by activityViewModels()
-    private lateinit var swipeRefreshFragment: SwipeRefreshLayout
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,7 +34,6 @@ class ShowPostFragment : Fragment() {
         savedInstanceState: Bundle?
     ) : View? {
         initBinding(inflater, container)
-        initSwipeRefresh()
         setupArgument()
         setupObserve()
         setupListeners()
@@ -51,12 +46,6 @@ class ShowPostFragment : Fragment() {
             container,
             false
         )
-    }
-
-    private fun initSwipeRefresh() {
-        binding?.apply {
-            swipeRefreshFragment = swiperefresh
-        }
     }
 
     private fun setupArgument() {
@@ -90,23 +79,34 @@ class ShowPostFragment : Fragment() {
         }
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun setupObserve() {
         lifecycleScope.launchWhenCreated {
-            viewModel.data.collectLatest { state ->
+            viewModel.data.collectLatest {
                 arguments?.postArg?.let { postArg ->
-                    updatePost(state, postArg)
+                    viewModel.findPostById(postArg.id)
                 }
             }
         }
+
+        viewModel.changePost.observe(viewLifecycleOwner) {post ->
+            post?.let {
+                binding?.apply {
+                    content.text = post.content
+                    like.text = viewModel.largeNumberDisplay(post.likes)
+                    share.text = viewModel.largeNumberDisplay(post.share)
+                }
+            }
+        }
+
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding?.apply {
                 if (state.error) {
                     Snackbar.make(root, R.string.retry_text, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.retry) { viewModel.loadPosts() }
+                        .setAction(R.string.retry) { findNavController().navigateUp() }
                         .show()
                 }
-                swipeRefreshFragment.isRefreshing = state.refreshing
             }
         }
 
@@ -164,22 +164,6 @@ class ShowPostFragment : Fragment() {
                         { textArg = postArg.attachment?.url })
                 }
 
-            }
-        }
-        swipeRefreshFragment.setOnRefreshListener {
-            viewModel.refreshPosts()
-        }
-    }
-
-    private fun updatePost(state : PagingData<Post>?, oldPost : Post?) {
-        val posts = ArrayList<Post>()
-        state?.map { posts.add(it) }
-        val post = posts.find { it.id == oldPost?.id }
-        post?.let {
-            binding?.apply {
-                content.text = post.content
-                like.text = viewModel.largeNumberDisplay(post.likes)
-                share.text = viewModel.largeNumberDisplay(post.share)
             }
         }
     }

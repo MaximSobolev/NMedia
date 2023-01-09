@@ -3,7 +3,6 @@ package ru.netology.firstask.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +18,7 @@ import ru.netology.firstask.dto.DraftPost
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.recyclerview.OnInteractionListener
 import ru.netology.firstask.recyclerview.PostAdapter
+import ru.netology.firstask.recyclerview.PostLoadingStateAdapter
 import ru.netology.firstask.util.DraftPostArg
 import ru.netology.firstask.util.PostArg
 import ru.netology.firstask.util.StringArg
@@ -32,8 +32,6 @@ class FeedFragment : Fragment() {
     private val authViewModel: AuthViewModel by activityViewModels()
     private lateinit var adapter: PostAdapter
     private lateinit var swipeRefreshFragment : SwipeRefreshLayout
-//    private var newPost = false
-//    private var displayOnScreen : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,7 +111,10 @@ class FeedFragment : Fragment() {
                 }
 
             })
-        binding?.list?.adapter = adapter
+        binding?.list?.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter{ adapter.retry() },
+            footer = PostLoadingStateAdapter{ adapter.retry() }
+        )
     }
 
     private fun initSwipeRefresh() {
@@ -122,7 +123,7 @@ class FeedFragment : Fragment() {
         }
     }
 
-
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private fun setupObserve() {
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest { state ->
@@ -132,33 +133,18 @@ class FeedFragment : Fragment() {
         lifecycleScope.launchWhenCreated {
             adapter.loadStateFlow.collectLatest {
                 binding?.swiperefresh?.isRefreshing = it.refresh is LoadState.Loading
-                        || it.append is LoadState.Loading
-                        || it.prepend is LoadState.Loading
             }
         }
 
         viewModel.authState.observe(viewLifecycleOwner) {
             adapter.refresh()
         }
-//        viewModel.data.observe(viewLifecycleOwner) { data ->
-//            newPost = data.posts.size > adapter.itemCount
-//            displayOnScreen = data.posts.firstOrNull()?.displayOnScreen ?: false
-//            adapter.submitList(data.posts) {
-//                when (displayOnScreen && newPost) {
-//                    true -> {binding?.list?.scrollToPosition(0)}
-//                    false -> { }
-//                }
-//            }
-//            binding?.apply {
-//                emptyText.isVisible = data.empty
-//            }
-//        }
+
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding?.apply {
-                progressBar.isVisible = state.loading
                 if (state.error) {
                     Snackbar.make(root, R.string.retry_text, Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.retry) { viewModel.loadPosts() }
+                        .setAction(R.string.retry) { adapter.refresh() }
                         .show()
                 }
             }
@@ -172,13 +158,6 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
-//        viewModel.newerCount.observe(viewLifecycleOwner) { count ->
-//            binding?.apply {
-//                if (count != 0) {
-//                    newerPosts.visibility = View.VISIBLE
-//                }
-//            }
-//        }
     }
 
     private fun setupListeners() {
@@ -197,13 +176,6 @@ class FeedFragment : Fragment() {
                 } else {
                     dialogWindow.visibility = View.VISIBLE
                 }
-            }
-            newerPosts.setOnClickListener {
-                viewModel.displayNewerPosts()
-                binding?.apply {
-                    newerPosts.visibility = View.GONE
-                }
-                binding?.list?.scrollToPosition(0)
             }
             swipeRefreshFragment.setOnRefreshListener {
                 adapter.refresh()
