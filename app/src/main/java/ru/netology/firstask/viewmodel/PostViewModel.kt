@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.firstask.R
 import ru.netology.firstask.dto.DraftPost
+import ru.netology.firstask.dto.FeedItem
 import ru.netology.firstask.dto.Post
 import ru.netology.firstask.error.*
 import ru.netology.firstask.model.FeedModelState
@@ -37,7 +38,7 @@ class PostViewModel @Inject constructor(
 ) : ViewModel() {
     private val cached = repository.data.cachedIn(viewModelScope)
 
-    val data: Flow<PagingData<Post>> = appAuth
+    val data: Flow<PagingData<FeedItem>> = appAuth
         .authStateFlow
         .flatMapLatest { cached }
 
@@ -56,6 +57,10 @@ class PostViewModel @Inject constructor(
     private val _photo = MutableLiveData<PhotoModel?>(null)
     val photo: LiveData<PhotoModel?>
         get() = _photo
+
+    private val _changePost = MutableLiveData<Post?>(null)
+    val changePost: LiveData<Post?>
+        get() = _changePost
 
     fun likeById(post: Post) {
         viewModelScope.launch {
@@ -206,6 +211,13 @@ class PostViewModel @Inject constructor(
 
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.postValue(PhotoModel(uri, file))
+    }
+
+    fun findPostById(id: Long) {
+        viewModelScope.launch {
+            val post = repository.findPostById(id)
+            _changePost.postValue(post)
+        }
     }
 
 }

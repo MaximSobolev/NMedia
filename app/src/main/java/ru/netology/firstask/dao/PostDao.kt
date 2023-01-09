@@ -54,4 +54,7 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity")
     suspend fun clear()
+
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    suspend fun findPostById(id: Long) : PostEntity?
 }
